@@ -1,0 +1,18 @@
+@baseUrl = http://localhost:5000
+
+### Read
+GET {{baseUrl}}/api/todos
+
+### Create
+POST {{baseUrl}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Learn Python"
+}
+
+### Delete
+DELETE {{baseUrl}}/api/todos/<todo_id>
+
+### Update
+POST {{baseUrl}}/api/todos/<todo_id>/toggle

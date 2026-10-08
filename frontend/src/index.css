@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+body {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  background-color: #fdfcfc;
+  color: #201d1d;
+}
