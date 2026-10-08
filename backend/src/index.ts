@@ -4,6 +4,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import logger from "./logger/index.js";
 import childRoutes from "./routes/child.js";
+import taskRoutes from "./routes/task.js";
 import { AppError } from "./errors/index.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { rateLimiter } from "./middlewares/rateLimiter.js";
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(express.json());
 app.use(rateLimiter);
 app.use("/api/children", childRoutes);
+app.use("/api/tasks", taskRoutes);
 
 app.use((req, _res, next) => {
   next(new AppError(`Route ${req.method} ${req.originalUrl} not found`, 404));
