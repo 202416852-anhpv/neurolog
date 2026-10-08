@@ -1,16 +1,16 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import type { Todo } from "../types/todo";
+import type { Todo } from "../../types/todo";
 import {
   fetchTodos,
   createTodo,
   deleteTodo,
   toggleTodo,
-} from "../api/todo";
-import TodoInput from "../components/TodoInput";
-import SearchBar from "../components/SearchBar";
-import TodoList from "../containers/TodoList";
+} from "../../api/todo";
+import TodoInput from "../../components/TodoInput";
+import SearchBar from "../../components/SearchBar";
+import TodoList from "../../containers/TodoList";
 
-export default function Home() {
+export default function TodosPage() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [titleInput, setTitleInput] = useState("");
   const [inputValue, setInputValue] = useState("");
