@@ -1,9 +1,10 @@
 import { Outlet } from "react-router-dom";
-import { LayoutDashboard, NotebookPen, Users } from "lucide-react";
+import { LayoutDashboard, ListChecks, NotebookPen, Users } from "lucide-react";
 import Navbar, { type NavItem } from "@/components/layout/Navbar";
 
 const PARENT_LINKS: NavItem[] = [
   { to: "/parent", label: "Tổng quan", end: true, icon: LayoutDashboard },
+  { to: "/parent/tasks", label: "Nhiệm vụ", end: true, icon: ListChecks },
   { to: "/parent/children", label: "Trẻ", icon: Users },
   { to: "/parent/journal", label: "Nhật ký", end: true, icon: NotebookPen },
 ];

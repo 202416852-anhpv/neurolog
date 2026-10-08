@@ -7,6 +7,7 @@ import TasksPage from "@/pages/child/TasksPage";
 import ChatPage from "@/pages/child/ChatPage";
 import ChildrenPage from "@/pages/parent/ChildrenPage";
 import ChildDetailPage from "@/pages/parent/ChildDetailPage";
+import ParentTasksPage from "@/pages/parent/ParentTasksPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import ParentLayout from "@/layouts/ParentLayout";
 import ChildLayout from "@/layouts/ChildLayout";
@@ -18,6 +19,7 @@ export default function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route element={<ParentLayout />}>
         <Route path="/parent" element={<ParentPage />} />
+        <Route path="/parent/tasks" element={<ParentTasksPage />} />
         <Route path="/parent/journal" element={<JournalPage />} />
         <Route path="/parent/children" element={<ChildrenPage />} />
         <Route path="/parent/children/:id" element={<ChildDetailPage />} />
