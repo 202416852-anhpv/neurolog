@@ -22,12 +22,10 @@ export interface NavItem {
 interface NavbarProps {
   brandTo: string;
   links: NavItem[];
-  size?: "default" | "lg";
 }
 
-export default function Navbar({ brandTo, links, size = "default" }: NavbarProps) {
+export default function Navbar({ brandTo, links }: NavbarProps) {
   const [open, setOpen] = useState(false);
-  const large = size === "lg";
 
   return (
     <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40 w-full border-b backdrop-blur">
@@ -53,12 +51,12 @@ export default function Navbar({ brandTo, links, size = "default" }: NavbarProps
                     className={({ isActive }) =>
                       cn(
                         "inline-flex items-center gap-3 rounded-md px-4 font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
-                        large ? "h-14 text-lg" : "h-12 text-base",
+                        "h-12 text-base",
                         isActive && "bg-secondary text-secondary-foreground",
                       )
                     }
                   >
-                    <item.icon className={large ? "size-5" : "size-4"} />
+                    <item.icon className="size-4" />
                     {item.label}
                   </NavLink>
                 ))}
@@ -83,7 +81,7 @@ export default function Navbar({ brandTo, links, size = "default" }: NavbarProps
               className={({ isActive }) =>
                 cn(
                   "inline-flex items-center gap-2 rounded-md font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
-                  large ? "h-11 px-5 text-base" : "h-9 px-4 text-sm",
+                  "h-9 px-4 text-sm",
                   isActive && "bg-secondary text-secondary-foreground",
                 )
               }

@@ -11,7 +11,7 @@ const CHILD_LINKS: NavItem[] = [
 export default function ChildLayout() {
   return (
     <div className="min-h-dvh">
-      <Navbar brandTo="/child" links={CHILD_LINKS} size="lg" />
+      <Navbar brandTo="/child" links={CHILD_LINKS} />
       <main>
         <Outlet />
       </main>
