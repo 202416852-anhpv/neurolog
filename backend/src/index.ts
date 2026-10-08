@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import logger from "./logger/index.js";
-import todoRoutes from "./routes/todo.js";
+import childRoutes from "./routes/child.js";
 import { AppError } from "./errors/index.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { rateLimiter } from "./middlewares/rateLimiter.js";
@@ -14,7 +14,7 @@ const PORT = process.env.PORT ?? 5000;
 app.use(cors());
 app.use(express.json());
 app.use(rateLimiter);
-app.use("/api/todos", todoRoutes);
+app.use("/api/children", childRoutes);
 
 app.use((req, _res, next) => {
   next(new AppError(`Route ${req.method} ${req.originalUrl} not found`, 404));
