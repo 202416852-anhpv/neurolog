@@ -33,9 +33,6 @@ export const updateChild = async (req: Request, res: Response) => {
   if (!parsed.success) {
     throw new AppError(ERROR_MESSAGES.VALIDATION_FAILED, 400);
   }
-  if (!parsed.success) {
-    throw new AppError(ERROR_MESSAGES.VALIDATION_FAILED, 400);
-  }
   const child = await childService.updateChild(
     req.params.id as string,
     parsed.data,

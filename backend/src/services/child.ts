@@ -1,4 +1,6 @@
 import * as childRepo from "../repos/child.js";
+import * as taskRepo from "../repos/task.js";
+import * as journalRepo from "../repos/journal.js";
 import type { IChild } from "../models/child.js";
 import type { CreateChildInput } from "../validations/child.js";
 
@@ -24,5 +26,9 @@ export const updateChild = async (
 };
 
 export const deleteChild = async (id: string): Promise<IChild | null> => {
+  const child = await childRepo.findById(id);
+  if (!child) return null;
+  await taskRepo.deleteByChildId(id);
+  await journalRepo.deleteByChildId(id);
   return childRepo.deleteById(id);
 };

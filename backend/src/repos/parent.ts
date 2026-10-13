@@ -1,0 +1,60 @@
+import mongoose from "mongoose";
+import { Parent, type IParent } from "../models/parent.js";
+import type { CreateParentInput } from "../validations/parent.js";
+
+export const findById = async (id: string): Promise<IParent | null> => {
+  return Parent.findById(id);
+};
+
+export const create = async (data: CreateParentInput): Promise<IParent> => {
+  return Parent.create({
+    name: data.name,
+    age: data.age,
+    email: data.email,
+    phone: data.phone ?? "",
+    notes: data.notes ?? "",
+  });
+};
+
+export const updateById = async (
+  id: string,
+  data: CreateParentInput,
+): Promise<IParent | null> => {
+  return Parent.findByIdAndUpdate(
+    id,
+    {
+      name: data.name,
+      age: data.age,
+      email: data.email,
+      phone: data.phone ?? "",
+      notes: data.notes ?? "",
+    },
+    { new: true },
+  );
+};
+
+export const deleteById = async (id: string): Promise<IParent | null> => {
+  return Parent.findByIdAndDelete(id);
+};
+
+export const addChild = async (
+  id: string,
+  childId: string,
+): Promise<IParent | null> => {
+  return Parent.findByIdAndUpdate(
+    id,
+    { $addToSet: { children: new mongoose.Types.ObjectId(childId) } },
+    { new: true },
+  );
+};
+
+export const removeChild = async (
+  id: string,
+  childId: string,
+): Promise<IParent | null> => {
+  return Parent.findByIdAndUpdate(
+    id,
+    { $pull: { children: new mongoose.Types.ObjectId(childId) } },
+    { new: true },
+  );
+};

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Check } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Check, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -8,63 +9,47 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { fetchChildren } from "@/api/child";
+import { fetchChild } from "@/api/child";
 import { fetchTasks, submitTask } from "@/api/task";
 import type { Child } from "@/types/child";
 import type { Task } from "@/types/task";
 
-const SELECT_CLASS =
-  "flex h-12 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
+const PROFILE_ID_KEY = "neurolog.childId";
 
 export default function TasksPage() {
-  const [children, setChildren] = useState<Child[]>([]);
-  const [selectedId, setSelectedId] = useState("");
+  const [child, setChild] = useState<Child | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [tasksFor, setTasksFor] = useState("");
-  const [loadingKids, setLoadingKids] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submittingId, setSubmittingId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    fetchChildren()
-      .then((data) => {
-        if (cancelled) return;
-        setChildren(data);
-        if (data.length > 0) setSelectedId(data[0]._id);
-      })
-      .catch(() => {
-        if (!cancelled) setError("Không tải được danh sách");
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingKids(false);
-      });
+    const storedId = localStorage.getItem(PROFILE_ID_KEY);
+    const load = storedId
+      ? fetchChild(storedId)
+          .then((data) => {
+            if (cancelled) return;
+            setChild(data);
+            return fetchTasks(data._id).then((taskList) => {
+              if (!cancelled) {
+                setTasks(taskList.filter((task) => task.status !== "done"));
+              }
+            });
+          })
+          .catch(() => {
+            if (cancelled) return;
+            localStorage.removeItem(PROFILE_ID_KEY);
+            setError("Không mở được hồ sơ, bé hãy tạo lại nhé");
+          })
+      : Promise.resolve();
+    load.finally(() => {
+      if (!cancelled) setLoading(false);
+    });
     return () => {
       cancelled = true;
     };
   }, []);
-
-  useEffect(() => {
-    if (!selectedId) return;
-    let cancelled = false;
-    fetchTasks(selectedId)
-      .then((data) => {
-        if (cancelled) return;
-        setTasks(data.filter((task) => task.status !== "done"));
-        setTasksFor(selectedId);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setError("Không tải được nhiệm vụ");
-        setTasksFor(selectedId);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedId]);
-
-  const loadingTasks = selectedId !== "" && tasksFor !== selectedId;
 
   const handleSubmit = async (id: string) => {
     setSubmittingId(id);
@@ -78,39 +63,44 @@ export default function TasksPage() {
     }
   };
 
-  return (
-    <div className="mx-auto max-w-5xl p-6">
-      <h1 className="mb-4 text-xl font-bold">Nhiệm vụ của bé</h1>
-
-      <div className="mb-4 grid gap-2">
-        <Label htmlFor="kid-pick">Bạn là ai?</Label>
-        <select
-          id="kid-pick"
-          className={SELECT_CLASS}
-          value={selectedId}
-          onChange={(e) => {
-            setSelectedId(e.target.value);
-            setTasks([]);
-          }}
-          disabled={loadingKids}
-        >
-          {children.map((child) => (
-            <option key={child._id} value={child._id}>
-              {child.name} ({child.age} tuổi)
-            </option>
-          ))}
-        </select>
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-6xl p-6">
+        <p className="text-muted-foreground text-sm">Đang tải...</p>
       </div>
+    );
+  }
+
+  if (!child) {
+    return (
+      <div className="mx-auto max-w-6xl p-6">
+        <h1 className="mb-4 text-xl font-bold">Nhiệm vụ của bé</h1>
+        {error && <p className="text-destructive mb-4 text-sm">{error}</p>}
+        <p className="text-muted-foreground mb-4 text-sm">
+          Bé chưa có hồ sơ. Vào "Hồ sơ" để điền thông tin trước đã nhé!
+        </p>
+        <Button className="h-12 text-base" asChild>
+          <Link to="/child/profile">
+            <UserPlus className="size-5" />
+            Tạo hồ sơ ngay
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-6xl p-6">
+      <h1 className="mb-1 text-xl font-bold">Nhiệm vụ của {child.name}</h1>
+      <p className="text-muted-foreground mb-4 text-sm">
+        Hoàn thành xong nhớ bấm "Hoàn thành" để phụ huynh duyệt nhé!
+      </p>
 
       {error && <p className="text-destructive mb-4 text-sm">{error}</p>}
 
-      {loadingKids || loadingTasks ? (
-        <p className="text-muted-foreground text-sm">Đang tải...</p>
-      ) : tasks.length === 0 ? (
+      {tasks.length === 0 ? (
         <p className="text-muted-foreground text-center text-sm">
-          {children.length === 0
-            ? "Chưa có bạn nào, nhờ phụ huynh thêm nhé"
-            : "Tuyệt vời, bé đã xong hết việc!"}
+          Tuyệt vời, bé đã xong hết việc!
         </p>
       ) : (
         <div className="grid gap-3">

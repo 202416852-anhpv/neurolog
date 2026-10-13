@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fetchChildren } from "@/api/child";
 import { approveTask, createTask, fetchTasks } from "@/api/task";
+import { fetchCurrentParent } from "@/lib/parent";
 import type { Child } from "@/types/child";
 import type { Task } from "@/types/task";
 
@@ -31,12 +32,14 @@ export default function ParentTasksPage() {
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([fetchTasks(), fetchChildren()])
-      .then(([taskData, childData]) => {
+    Promise.all([fetchCurrentParent(), fetchTasks(), fetchChildren()])
+      .then(([parent, taskData, childData]) => {
         if (cancelled) return;
-        setTasks(taskData);
-        setChildren(childData);
-        if (childData.length > 0) setAssignId(childData[0]._id);
+        const idSet = new Set(parent?.children ?? []);
+        const linkedChildren = childData.filter((c) => idSet.has(c._id));
+        setChildren(linkedChildren);
+        setTasks(taskData.filter((t) => idSet.has(t.childId)));
+        if (linkedChildren.length > 0) setAssignId(linkedChildren[0]._id);
       })
       .catch(() => {
         if (!cancelled) setError("Không tải được nhiệm vụ");
@@ -95,7 +98,7 @@ export default function ParentTasksPage() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-5xl p-6">
+    <div className="mx-auto max-w-6xl p-6">
       <h1 className="mb-4 text-xl font-bold">Giao nhiệm vụ</h1>
 
       <Card className="mb-4">

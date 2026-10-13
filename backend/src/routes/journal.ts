@@ -5,6 +5,7 @@ const router = Router();
 
 router.get("/", journalController.getJournals);
 router.post("/", journalController.createJournal);
+router.put("/:id", journalController.updateJournal);
 router.delete("/:id", journalController.deleteJournal);
 
 export default router;

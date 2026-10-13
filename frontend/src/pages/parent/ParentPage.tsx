@@ -25,7 +25,9 @@ import {
 import { fetchChildren } from "@/api/child";
 import { approveTask, fetchTasks } from "@/api/task";
 import { fetchJournals } from "@/api/journal";
+import { fetchCurrentParent } from "@/lib/parent";
 import type { Child } from "@/types/child";
+import type { Parent } from "@/types/parent";
 import type { Task } from "@/types/task";
 import type { JournalEntry } from "@/types/journal";
 
@@ -162,6 +164,7 @@ function WeeklyChart({ tasks }: { tasks: Task[] }) {
 /* ── Main page ─────────────────────────────────────────────── */
 
 export default function ParentPage() {
+  const [parent, setParent] = useState<Parent | null>(null);
   const [children, setChildren] = useState<Child[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [journals, setJournals] = useState<JournalEntry[]>([]);
@@ -171,12 +174,19 @@ export default function ParentPage() {
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([fetchChildren(), fetchTasks(), fetchJournals()])
-      .then(([childData, taskData, journalData]) => {
+    Promise.all([
+      fetchCurrentParent(),
+      fetchChildren(),
+      fetchTasks(),
+      fetchJournals(),
+    ])
+      .then(([parentData, childData, taskData, journalData]) => {
         if (cancelled) return;
-        setChildren(childData);
-        setTasks(taskData);
-        setJournals(journalData);
+        const idSet = new Set(parentData?.children ?? []);
+        setParent(parentData);
+        setChildren(childData.filter((c) => idSet.has(c._id)));
+        setTasks(taskData.filter((t) => idSet.has(t.childId)));
+        setJournals(journalData.filter((j) => idSet.has(j.childId)));
       })
       .catch(() => {
         if (!cancelled) setError("Không tải được dữ liệu tổng quan");
@@ -254,7 +264,7 @@ export default function ParentPage() {
   });
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-6">
+    <div className="mx-auto max-w-6xl space-y-6 p-6">
       {/* Hero header */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-magenta via-brand-coral to-brand-yellow p-6 text-white shadow-lg md:p-8">
         <div className="relative z-10 flex flex-wrap items-end justify-between gap-4">
@@ -264,7 +274,7 @@ export default function ParentPage() {
               {today}
             </p>
             <h1 className="text-2xl font-extrabold md:text-3xl">
-              {greetingByHour()}, gia đình! 💖
+              {greetingByHour()}{parent ? `, ${parent.name}` : ", gia đình"}! 💖
             </h1>
             <p className="mt-1 max-w-md text-sm text-white/85">
               Hôm nay có{" "}

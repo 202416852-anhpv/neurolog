@@ -1,38 +1,89 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { BookOpenText, Link2, ListChecks, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import ChildFormDialog from "@/components/children/ChildFormDialog";
-import ConfirmDeleteDialog from "@/components/children/ConfirmDeleteDialog";
-import {
-  createChild,
-  deleteChild,
-  fetchChildren,
-  updateChild,
-} from "@/api/child";
+import LinkChildDialog from "@/components/parent/LinkChildDialog";
+import { createChild, fetchChildren } from "@/api/child";
+import { fetchTasks } from "@/api/task";
+import { fetchJournals } from "@/api/journal";
+import { linkChild } from "@/api/parent";
+import { fetchCurrentParent, getStoredParentId } from "@/lib/parent";
 import type { Child, ChildInput } from "@/types/child";
+import type { Task } from "@/types/task";
+import type { JournalEntry } from "@/types/journal";
+
+const GENDER_LABEL: Record<string, string> = {
+  male: "Nam",
+  female: "Nữ",
+  other: "Khác",
+};
+
+const AVATAR_COLORS = [
+  "bg-brand-magenta",
+  "bg-brand-green",
+  "bg-brand-yellow",
+  "bg-brand-mint",
+  "bg-brand-coral",
+  "bg-brand-pink",
+];
+
+interface ChildSummary {
+  child: Child;
+  totalTasks: number;
+  doneTasks: number;
+  journalCount: number;
+}
+
+const buildSummaries = (
+  linked: Child[],
+  tasks: Task[],
+  journals: JournalEntry[],
+): ChildSummary[] =>
+  linked.map((child) => {
+    const ownTasks = tasks.filter((t) => t.childId === child._id);
+    return {
+      child,
+      totalTasks: ownTasks.length,
+      doneTasks: ownTasks.filter((t) => t.status === "done").length,
+      journalCount: journals.filter((j) => j.childId === child._id).length,
+    };
+  });
 
 export default function ChildrenPage() {
-  const [children, setChildren] = useState<Child[]>([]);
+  const [summaries, setSummaries] = useState<ChildSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [formKey, setFormKey] = useState(0);
-  const [editing, setEditing] = useState<Child | null>(null);
-  const [deleting, setDeleting] = useState<Child | null>(null);
-  const [deletingBusy, setDeletingBusy] = useState(false);
+  const [linkOpen, setLinkOpen] = useState(false);
+  const [linkBusy, setLinkBusy] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
+
+  const loadData = useCallback(async () => {
+    const [parent, allChildren, tasks, journals] = await Promise.all([
+      fetchCurrentParent(),
+      fetchChildren(),
+      fetchTasks(),
+      fetchJournals(),
+    ]);
+    const idSet = new Set(parent?.children ?? []);
+    return buildSummaries(
+      allChildren.filter((c) => idSet.has(c._id)),
+      tasks,
+      journals,
+    );
+  }, []);
+
+  const reload = useCallback(async () => {
+    setSummaries(await loadData());
+  }, [loadData]);
 
   useEffect(() => {
     let cancelled = false;
-    fetchChildren()
+    loadData()
       .then((data) => {
-        if (!cancelled) setChildren(data);
+        if (!cancelled) setSummaries(data);
       })
       .catch(() => {
         if (!cancelled) setError("Không tải được danh sách trẻ");
@@ -43,107 +94,135 @@ export default function ChildrenPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [loadData]);
 
-  const handleSubmit = useCallback(
+  const handleCreate = useCallback(
     async (input: ChildInput) => {
-      if (editing) {
-        const updated = await updateChild(editing._id, input);
-        setChildren((prev) =>
-          prev.map((c) => (c._id === updated._id ? updated : c)),
-        );
-      } else {
-        const created = await createChild(input);
-        setChildren((prev) => [created, ...prev]);
+      const created = await createChild(input);
+      const storedParentId = getStoredParentId();
+      if (storedParentId) {
+        try {
+          await linkChild(storedParentId, created._id);
+        } catch {
+          setError(
+            "Đã tạo trẻ nhưng không liên kết được, hãy dán mã hồ sơ thủ công",
+          );
+        }
       }
-      setEditing(null);
+      await reload();
     },
-    [editing],
+    [reload],
   );
 
-  const handleDelete = useCallback(async () => {
-    if (!deleting) return;
-    setDeletingBusy(true);
-    try {
-      await deleteChild(deleting._id);
-      setChildren((prev) => prev.filter((c) => c._id !== deleting._id));
-      setDeleting(null);
-    } catch {
-      setError("Không xóa được, vui lòng thử lại");
-    } finally {
-      setDeletingBusy(false);
-    }
-  }, [deleting]);
+  const handleLink = useCallback(
+    async (childId: string) => {
+      const storedParentId = getStoredParentId();
+      if (!storedParentId) return;
+      setLinkBusy(true);
+      setLinkError(null);
+      try {
+        await linkChild(storedParentId, childId);
+        await reload();
+        setLinkOpen(false);
+      } catch (err) {
+        const status = (err as { response?: { status?: number } })?.response
+          ?.status;
+        setLinkError(
+          status === 404
+            ? "Không tìm thấy trẻ với mã này"
+            : "Không liên kết được, vui lòng thử lại",
+        );
+      } finally {
+        setLinkBusy(false);
+      }
+    },
+    [reload],
+  );
 
   return (
-    <div className="mx-auto max-w-5xl p-6">
-      <div className="mb-4 flex items-center justify-between">
+    <div className="mx-auto max-w-6xl p-6">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl font-bold">Quản lý trẻ</h1>
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setFormKey((k) => k + 1);
-            setFormOpen(true);
-          }}
-        >
-          <Plus className="size-4" />
-          Thêm trẻ
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setLinkError(null);
+              setLinkOpen(true);
+            }}
+          >
+            <Link2 className="size-4" />
+            Dán mã bé
+          </Button>
+          <Button
+            onClick={() => {
+              setFormKey((k) => k + 1);
+              setFormOpen(true);
+            }}
+          >
+            <Plus className="size-4" />
+            Thêm trẻ
+          </Button>
+        </div>
       </div>
 
       {error && <p className="text-destructive mb-4 text-sm">{error}</p>}
 
       {loading ? (
         <p className="text-muted-foreground text-sm">Đang tải...</p>
-      ) : children.length === 0 ? (
-        <p className="text-muted-foreground text-center text-sm">
-          Chưa có trẻ nào, hãy thêm trẻ đầu tiên
-        </p>
+      ) : summaries.length === 0 ? (
+        <div className="rounded-xl border border-dashed py-12 text-center">
+          <p className="font-medium">Chưa liên kết bé nào</p>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Bé tạo hồ sơ ở Góc của bé rồi dán mã hồ sơ (ObjectId) vào đây, hoặc
+            bấm "Thêm trẻ" để tạo mới
+          </p>
+        </div>
       ) : (
-        <div className="grid gap-3">
-          {children.map((child) => (
-            <Card key={child._id}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <span className="flex-1">
-                    <Link
-                      to={`/parent/children/${child._id}`}
-                      className="hover:text-primary font-medium underline-offset-4 hover:underline"
-                    >
-                      {child.name}
-                    </Link>
-                    <span className="text-muted-foreground ml-2 text-sm font-normal">
-                      {child.age} tuổi
-                    </span>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {summaries.map(({ child, totalTasks, doneTasks, journalCount }, i) => (
+            <Link
+              key={child._id}
+              to={`/parent/children/${child._id}`}
+              className="group rounded-xl border bg-card p-4 shadow-xs transition-all hover:border-brand-magenta/40 hover:shadow-md"
+            >
+              <div className="mb-3 flex items-center gap-3">
+                <span
+                  className={`flex size-11 shrink-0 items-center justify-center rounded-full text-base font-bold text-white ${
+                    AVATAR_COLORS[i % AVATAR_COLORS.length]
+                  }`}
+                >
+                  {child.name.charAt(0).toUpperCase()}
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate font-semibold group-hover:text-brand-magenta">
+                    {child.name}
+                  </p>
+                  <p className="text-muted-foreground text-sm">
+                    {child.age} tuổi
+                    {child.gender ? ` · ${GENDER_LABEL[child.gender]}` : ""}
+                    {child.weight != null ? ` · ${child.weight} kg` : ""}
+                    {child.height != null ? ` · ${child.height} cm` : ""}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-4 text-sm">
+                <span className="flex items-center gap-1.5 text-muted-foreground">
+                  <ListChecks className="size-4" />
+                  <span className="font-semibold text-foreground">
+                    {doneTasks}/{totalTasks}
                   </span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setEditing(child);
-                      setFormKey((k) => k + 1);
-                      setFormOpen(true);
-                    }}
-                    aria-label={`Sửa ${child.name}`}
-                  >
-                    <Pencil className="size-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setDeleting(child)}
-                    aria-label={`Xóa ${child.name}`}
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground text-sm">
-                  Xem nhiệm vụ, nhật ký và báo cáo của trẻ
-                </p>
-              </CardContent>
-            </Card>
+                  nhiệm vụ
+                </span>
+                <span className="flex items-center gap-1.5 text-muted-foreground">
+                  <BookOpenText className="size-4" />
+                  <span className="font-semibold text-foreground">
+                    {journalCount}
+                  </span>
+                  nhật ký
+                </span>
+              </div>
+            </Link>
           ))}
         </div>
       )}
@@ -151,25 +230,17 @@ export default function ChildrenPage() {
       <ChildFormDialog
         key={formKey}
         open={formOpen}
-        onOpenChange={(open) => {
-          setFormOpen(open);
-          if (!open) setEditing(null);
-        }}
-        initial={editing}
-        onSubmit={handleSubmit}
+        onOpenChange={setFormOpen}
+        initial={null}
+        onSubmit={handleCreate}
       />
 
-      <ConfirmDeleteDialog
-        open={deleting !== null}
-        onOpenChange={() => setDeleting(null)}
-        title="Xóa trẻ?"
-        description={
-          deleting
-            ? `Hồ sơ của ${deleting.name} và dữ liệu liên quan sẽ bị xóa. Hành động này không thể hoàn tác.`
-            : ""
-        }
-        busy={deletingBusy}
-        onConfirm={handleDelete}
+      <LinkChildDialog
+        open={linkOpen}
+        onOpenChange={setLinkOpen}
+        busy={linkBusy}
+        error={linkError}
+        onSubmit={handleLink}
       />
     </div>
   );

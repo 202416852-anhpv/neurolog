@@ -1,8 +1,16 @@
 import mongoose, { type Document, Schema } from "mongoose";
 
+export type Gender = "male" | "female" | "other";
+
 export interface IChild extends Document {
   name: string;
   age: number;
+  gender?: Gender;
+  dateOfBirth?: Date;
+  weight?: number | null;
+  height?: number | null;
+  interests?: string;
+  healthNotes?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -11,6 +19,12 @@ const childSchema = new Schema<IChild>(
   {
     name: { type: String, required: true, trim: true, maxlength: 100 },
     age: { type: Number, required: true, min: 1, max: 18 },
+    gender: { type: String, enum: ["male", "female", "other"] },
+    dateOfBirth: { type: Date },
+    weight: { type: Number, min: 1, max: 300, default: null },
+    height: { type: Number, min: 30, max: 250, default: null },
+    interests: { type: String, trim: true, maxlength: 500, default: "" },
+    healthNotes: { type: String, trim: true, maxlength: 500, default: "" },
   },
   { timestamps: true },
 );

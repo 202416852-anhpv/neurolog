@@ -25,6 +25,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { fetchChildren } from "@/api/child";
 import { createJournal, deleteJournal, fetchJournals } from "@/api/journal";
+import { fetchCurrentParent } from "@/lib/parent";
 import type { Child } from "@/types/child";
 import type { JournalEntry } from "@/types/journal";
 
@@ -378,12 +379,14 @@ export default function JournalPage() {
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([fetchJournals(), fetchChildren()])
-      .then(([journalData, childData]) => {
+    Promise.all([fetchCurrentParent(), fetchJournals(), fetchChildren()])
+      .then(([parent, journalData, childData]) => {
         if (cancelled) return;
-        setEntries(journalData);
-        setChildren(childData);
-        if (childData.length > 0) setChildId(childData[0]._id);
+        const idSet = new Set(parent?.children ?? []);
+        const linkedChildren = childData.filter((c) => idSet.has(c._id));
+        setChildren(linkedChildren);
+        setEntries(journalData.filter((e) => idSet.has(e.childId)));
+        if (linkedChildren.length > 0) setChildId(linkedChildren[0]._id);
       })
       .catch(() => {
         if (!cancelled) setError("Không tải được nhật ký");
@@ -486,7 +489,7 @@ export default function JournalPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-5xl p-6">
+    <div className="mx-auto max-w-6xl p-6">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Nhật ký tâm lý</h1>
         <p className="text-muted-foreground text-sm">

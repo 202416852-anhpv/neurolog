@@ -29,7 +29,7 @@ export default function Navbar({ brandTo, links }: NavbarProps) {
 
   return (
     <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40 w-full border-b backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-5xl items-center gap-1 px-4">
+      <div className="mx-auto flex h-14 max-w-6xl items-center gap-1 px-4">
         <div className="md:hidden">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>

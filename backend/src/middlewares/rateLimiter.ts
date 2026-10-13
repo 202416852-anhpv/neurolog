@@ -3,28 +3,42 @@ import { AppError, ERROR_MESSAGES } from "../errors/index.js";
 
 const BUCKET_CAPACITY = 50;
 const REFILL_RATE = 10;
+const MAX_BUCKETS = 10_000;
 
-let tokens = BUCKET_CAPACITY;
-let lastRefillTime = Date.now();
+interface Bucket {
+  tokens: number;
+  lastRefillTime: number;
+}
 
-export const rateLimiter = (req: Request, _res: Response, next: NextFunction) => {
+const buckets = new Map<string, Bucket>();
+
+export const rateLimiter = (req: Request, res: Response, next: NextFunction) => {
+  const key = req.ip ?? "unknown";
   const now = Date.now();
-  const elapsed = now - lastRefillTime;
+
+  let bucket = buckets.get(key);
+  if (!bucket) {
+    if (buckets.size >= MAX_BUCKETS) {
+      buckets.clear();
+    }
+    bucket = { tokens: BUCKET_CAPACITY, lastRefillTime: now };
+    buckets.set(key, bucket);
+  }
+
+  const elapsed = now - bucket.lastRefillTime;
   const refill = (elapsed * REFILL_RATE) / 1000;
+  bucket.tokens = Math.min(BUCKET_CAPACITY, bucket.tokens + refill);
+  bucket.lastRefillTime = now;
 
-  tokens = Math.min(BUCKET_CAPACITY, tokens + refill);
-  lastRefillTime = now;
+  res.setHeader("X-RateLimit-Limit", BUCKET_CAPACITY);
+  res.setHeader("X-RateLimit-Reset", Math.ceil(now / 1000 + 1));
 
-  if (tokens >= 1) {
-    tokens--;
-    _res.setHeader("X-RateLimit-Limit", BUCKET_CAPACITY);
-    _res.setHeader("X-RateLimit-Remaining", Math.floor(tokens));
-    _res.setHeader("X-RateLimit-Reset", Math.ceil(lastRefillTime / 1000 + 1));
+  if (bucket.tokens >= 1) {
+    bucket.tokens--;
+    res.setHeader("X-RateLimit-Remaining", Math.floor(bucket.tokens));
     next();
   } else {
-    _res.setHeader("X-RateLimit-Limit", BUCKET_CAPACITY);
-    _res.setHeader("X-RateLimit-Remaining", 0);
-    _res.setHeader("X-RateLimit-Reset", Math.ceil(lastRefillTime / 1000 + 1));
+    res.setHeader("X-RateLimit-Remaining", 0);
     throw new AppError(ERROR_MESSAGES.RATE_LIMIT_EXCEEDED, 429);
   }
 };

@@ -20,7 +20,7 @@ export const updateChild = async (
   id: string,
   input: ChildInput,
 ): Promise<Child> => {
-  const { data } = await api.post<Child>(`/children/${id}`, input);
+  const { data } = await api.put<Child>(`/children/${id}`, input);
   return data;
 };
 
