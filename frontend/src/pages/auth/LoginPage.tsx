@@ -11,7 +11,7 @@ import {
 
 export default function LoginPage() {
   return (
-    <div className="mx-auto flex min-h-dvh max-w-xl flex-col items-center justify-center p-6">
+    <div className="mx-auto flex min-h-dvh max-w-5xl flex-col items-center justify-center p-6">
       <div className="mb-6 text-center">
         <h1 className="text-xl font-bold">Neurolog</h1>
         <p className="text-muted-foreground mt-2 text-sm">Bạn là ai?</p>

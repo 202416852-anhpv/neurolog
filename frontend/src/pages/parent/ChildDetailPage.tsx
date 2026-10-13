@@ -71,7 +71,7 @@ export default function ChildDetailPage() {
 
   if (!id) {
     return (
-      <div className="mx-auto max-w-xl p-6">
+      <div className="mx-auto max-w-5xl p-6">
         <p className="text-destructive mb-4 text-sm">Thiếu mã của trẻ</p>
         <Button variant="outline" asChild>
           <Link to="/parent/children">
@@ -85,7 +85,7 @@ export default function ChildDetailPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-xl p-6">
+      <div className="mx-auto max-w-5xl p-6">
         <p className="text-muted-foreground text-sm">Đang tải...</p>
       </div>
     );
@@ -93,7 +93,7 @@ export default function ChildDetailPage() {
 
   if (error || !child) {
     return (
-      <div className="mx-auto max-w-xl p-6">
+      <div className="mx-auto max-w-5xl p-6">
         <p className="text-destructive mb-4 text-sm">
           {error ?? "Không tìm thấy trẻ"}
         </p>
@@ -108,7 +108,7 @@ export default function ChildDetailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl p-6">
+    <div className="mx-auto max-w-5xl p-6">
       <Button variant="ghost" asChild className="mb-4">
         <Link to="/parent/children">
           <ArrowLeft className="size-4" />

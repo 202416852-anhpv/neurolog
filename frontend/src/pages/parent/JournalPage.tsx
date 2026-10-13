@@ -110,8 +110,8 @@ function AudioRecorderUI() {
     <Card className="overflow-hidden">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
-          <div className="flex size-8 items-center justify-center rounded-full bg-rose-100">
-            <Mic className="size-4 text-rose-600" />
+          <div className="flex size-8 items-center justify-center rounded-full bg-brand-magenta/10">
+            <Mic className="size-4 text-brand-magenta" />
           </div>
           Ghi âm
           <Badge variant="secondary" className="ml-auto text-[10px]">
@@ -133,9 +133,9 @@ function AudioRecorderUI() {
                 key={i}
                 className={`w-[5px] rounded-full transition-all duration-300 ${
                   isRecording && !isPaused
-                    ? "bg-rose-500"
+                    ? "bg-brand-magenta"
                     : hasRecording
-                      ? "bg-violet-500"
+                      ? "bg-brand-pink"
                       : "bg-muted-foreground/20"
                 }`}
                 style={{ height: `${h}px` }}
@@ -154,7 +154,7 @@ function AudioRecorderUI() {
           {!isRecording && !hasRecording && (
             <Button
               size="lg"
-              className="h-14 w-14 rounded-full bg-rose-500 p-0 text-white shadow-lg shadow-rose-500/30 hover:bg-rose-600"
+              className="h-14 w-14 rounded-full bg-brand-magenta p-0 text-white shadow-lg shadow-brand-magenta/30 hover:bg-brand-magenta/90"
               onClick={startRecording}
             >
               <Mic className="size-6" />
@@ -173,7 +173,7 @@ function AudioRecorderUI() {
               </Button>
               <Button
                 size="lg"
-                className="h-14 w-14 rounded-full bg-zinc-800 p-0 text-white shadow-lg hover:bg-zinc-900"
+                className="h-14 w-14 rounded-full bg-foreground p-0 text-white shadow-lg hover:bg-foreground/90"
                 onClick={stopRecording}
               >
                 <MicOff className="size-5" />
@@ -203,7 +203,7 @@ function AudioRecorderUI() {
               </Button>
               <Button
                 size="lg"
-                className="h-11 rounded-full px-4 bg-violet-500 text-white hover:bg-violet-600"
+                className="h-11 rounded-full px-4 bg-brand-coral text-white hover:bg-brand-coral/90"
                 onClick={startRecording}
               >
                 <Mic className="size-4" />
@@ -214,10 +214,10 @@ function AudioRecorderUI() {
         </div>
 
         {isRecording && (
-          <div className="flex items-center gap-2 text-sm text-rose-600">
+          <div className="flex items-center gap-2 text-sm text-brand-magenta">
             <span className="relative flex size-2">
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-rose-400 opacity-75" />
-              <span className="relative inline-flex size-2 rounded-full bg-rose-500" />
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand-magenta/50 opacity-75" />
+              <span className="relative inline-flex size-2 rounded-full bg-brand-magenta" />
             </span>
             Đang ghi âm...
           </div>
@@ -269,8 +269,8 @@ function PhotoCaptureUI() {
     <Card className="overflow-hidden">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
-          <div className="flex size-8 items-center justify-center rounded-full bg-sky-100">
-            <Camera className="size-4 text-sky-600" />
+          <div className="flex size-8 items-center justify-center rounded-full bg-brand-mint/20">
+            <Camera className="size-4 text-brand-mint" />
           </div>
           Chụp ảnh / OCR
           <Badge variant="secondary" className="ml-auto text-[10px]">
@@ -301,7 +301,7 @@ function PhotoCaptureUI() {
         ) : (
           <div className="flex flex-col gap-3">
             {/* Mock photo preview */}
-            <div className="relative overflow-hidden rounded-lg border bg-gradient-to-br from-sky-50 via-violet-50 to-pink-50">
+            <div className="relative overflow-hidden rounded-lg border bg-gradient-to-br from-brand-mint/20 via-brand-pink/20 to-brand-magenta/10">
               <div className="flex h-44 items-center justify-center">
                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                   <Camera className="size-8" />
@@ -455,9 +455,9 @@ export default function JournalPage() {
         "VD: Bé đang chơi xếp hình, chị đến lấy mất khối lego...",
       value: antecedent,
       onChange: setAntecedent,
-      color: "from-amber-500 to-orange-500",
-      bg: "bg-amber-50",
-      border: "border-amber-200 focus-visible:border-amber-400 focus-visible:ring-amber-400/30",
+      color: "from-brand-yellow to-brand-coral",
+      bg: "bg-brand-yellow/15",
+      border: "border-brand-yellow/40 focus-visible:border-brand-yellow focus-visible:ring-brand-yellow/30",
     },
     {
       key: "B" as const,
@@ -467,9 +467,9 @@ export default function JournalPage() {
         "VD: Bé hét lớn, đập tay xuống bàn, nói 'Không!'. Sau đó chạy ra góc phòng.",
       value: behavior,
       onChange: setBehavior,
-      color: "from-rose-500 to-pink-500",
-      bg: "bg-rose-50",
-      border: "border-rose-200 focus-visible:border-rose-400 focus-visible:ring-rose-400/30",
+      color: "from-brand-magenta to-brand-pink",
+      bg: "bg-brand-magenta/10",
+      border: "border-brand-magenta/30 focus-visible:border-brand-magenta focus-visible:ring-brand-magenta/30",
     },
     {
       key: "C" as const,
@@ -479,14 +479,14 @@ export default function JournalPage() {
         "VD: Mình ôm bé, đợi bé bình tĩnh. Sau 5 phút bé xin lỗi và chơi tiếp.",
       value: consequence,
       onChange: setConsequence,
-      color: "from-emerald-500 to-teal-500",
-      bg: "bg-emerald-50",
-      border: "border-emerald-200 focus-visible:border-emerald-400 focus-visible:ring-emerald-400/30",
+      color: "from-brand-green to-brand-mint",
+      bg: "bg-brand-green/10",
+      border: "border-brand-green/30 focus-visible:border-brand-green focus-visible:ring-brand-green/30",
     },
   ];
 
   return (
-    <div className="mx-auto max-w-3xl p-6">
+    <div className="mx-auto max-w-5xl p-6">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Nhật ký tâm lý</h1>
         <p className="text-muted-foreground text-sm">
@@ -504,8 +504,8 @@ export default function JournalPage() {
       <Card className="mb-6">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-base">
-            <div className="flex size-8 items-center justify-center rounded-full bg-violet-100">
-              <Plus className="size-4 text-violet-600" />
+            <div className="flex size-8 items-center justify-center rounded-full bg-brand-yellow/20">
+              <Plus className="size-4 text-brand-coral" />
             </div>
             Viết nhật ký
           </CardTitle>
@@ -643,9 +643,9 @@ export default function JournalPage() {
               <CardContent className="grid gap-3 text-sm">
                 {(
                   [
-                    { label: "A", key: "antecedent" as const, color: "bg-amber-500" },
-                    { label: "B", key: "behavior" as const, color: "bg-rose-500" },
-                    { label: "C", key: "consequence" as const, color: "bg-emerald-500" },
+                    { label: "A", key: "antecedent" as const, color: "bg-brand-yellow" },
+                    { label: "B", key: "behavior" as const, color: "bg-brand-magenta" },
+                    { label: "C", key: "consequence" as const, color: "bg-brand-green" },
                   ]
                 ).map(({ label, key, color }) => (
                   <div key={key} className="flex gap-3">

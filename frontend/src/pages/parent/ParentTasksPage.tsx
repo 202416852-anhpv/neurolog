@@ -95,7 +95,7 @@ export default function ParentTasksPage() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-xl p-6">
+    <div className="mx-auto max-w-5xl p-6">
       <h1 className="mb-4 text-xl font-bold">Giao nhiệm vụ</h1>
 
       <Card className="mb-4">
