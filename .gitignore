@@ -3,3 +3,4 @@ dist/
 .env
 DESIGN.md
 AGENTS.md
+.playwright-mcp/

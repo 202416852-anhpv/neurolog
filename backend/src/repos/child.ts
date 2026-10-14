@@ -22,6 +22,35 @@ export const findById = async (id: string): Promise<IChild | null> => {
   return Child.findById(id);
 };
 
+export const findByGoogleSub = async (
+  sub: string,
+): Promise<IChild | null> => {
+  return Child.findOne({ googleSub: sub });
+};
+
+export const findByEmail = async (email: string): Promise<IChild | null> => {
+  return Child.findOne({ email });
+};
+
+export const attachGoogleSub = async (
+  id: string,
+  sub: string,
+): Promise<IChild | null> => {
+  return Child.findByIdAndUpdate(id, { googleSub: sub }, { new: true });
+};
+
+export const createWithAuth = async (
+  data: CreateChildInput,
+  auth: { googleSub: string; email?: string },
+): Promise<IChild> => {
+  const payload: Record<string, unknown> = {
+    ...stripUndefined(data),
+    googleSub: auth.googleSub,
+  };
+  if (auth.email) payload.email = auth.email;
+  return Child.create(payload);
+};
+
 export const deleteById = async (id: string): Promise<IChild | null> => {
   return Child.findByIdAndDelete(id);
 };

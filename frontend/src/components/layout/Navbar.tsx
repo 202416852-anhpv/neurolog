@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,9 +22,52 @@ export interface NavItem {
 interface NavbarProps {
   brandTo: string;
   links: NavItem[];
+  user?: { name: string; picture?: string };
+  onLogout?: () => void;
 }
 
-export default function Navbar({ brandTo, links }: NavbarProps) {
+function UserBadge({
+  user,
+  onLogout,
+  className,
+}: {
+  user: { name: string; picture?: string };
+  onLogout?: () => void;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex items-center gap-2", className)}>
+      {user.picture ? (
+        <img
+          src={user.picture}
+          alt=""
+          referrerPolicy="no-referrer"
+          className="size-8 rounded-full"
+        />
+      ) : (
+        <span className="bg-brand-magenta/15 text-brand-magenta flex size-8 items-center justify-center rounded-full text-sm font-semibold">
+          {(user.name || "?").charAt(0).toUpperCase()}
+        </span>
+      )}
+      <span className="max-w-32 truncate text-sm font-medium">
+        {user.name || "Tài khoản"}
+      </span>
+      {onLogout && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onLogout}
+          aria-label="Đăng xuất"
+        >
+          <LogOut className="size-4" />
+          <span className="hidden sm:inline">Đăng xuất</span>
+        </Button>
+      )}
+    </div>
+  );
+}
+
+export default function Navbar({ brandTo, links, user, onLogout }: NavbarProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -60,13 +103,24 @@ export default function Navbar({ brandTo, links }: NavbarProps) {
                     {item.label}
                   </NavLink>
                 ))}
+                {user && (
+                  <div className="mt-4 border-t pt-4">
+                    <UserBadge
+                      user={user}
+                      onLogout={() => {
+                        setOpen(false);
+                        onLogout?.();
+                      }}
+                    />
+                  </div>
+                )}
               </nav>
             </SheetContent>
           </Sheet>
         </div>
 
         <Link to={brandTo} className="mr-2 text-lg font-bold">
-          Neurolog
+          NeuroLog
         </Link>
 
         <nav
@@ -91,6 +145,12 @@ export default function Navbar({ brandTo, links }: NavbarProps) {
             </NavLink>
           ))}
         </nav>
+
+        {user && (
+          <div className="ml-auto">
+            <UserBadge user={user} onLogout={onLogout} />
+          </div>
+        )}
       </div>
     </header>
   );

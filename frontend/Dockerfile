@@ -4,6 +4,7 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 ARG VITE_API_URL=http://localhost:5000/api
+ARG VITE_GOOGLE_CLIENT_ID=
 RUN npm run build
 
 FROM nginx:alpine

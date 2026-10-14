@@ -11,7 +11,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createParent } from "@/api/parent";
+import { completeParentProfile } from "@/api/auth";
+import { getStoredUserEmail, getStoredUserName } from "@/lib/auth";
 import type { Parent } from "@/types/parent";
 
 interface ParentSetupFormProps {
@@ -19,9 +20,9 @@ interface ParentSetupFormProps {
 }
 
 export default function ParentSetupForm({ onCreated }: ParentSetupFormProps) {
-  const [name, setName] = useState("");
+  const [name, setName] = useState(getStoredUserName() ?? "");
   const [age, setAge] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(getStoredUserEmail() ?? "");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -44,14 +45,14 @@ export default function ParentSetupForm({ onCreated }: ParentSetupFormProps) {
     setSaving(true);
     setError(null);
     try {
-      const parent = await createParent({
+      const { profile } = await completeParentProfile({
         name: name.trim(),
         age: parsedAge,
         email: email.trim(),
         phone: phone.trim() || undefined,
         notes: notes.trim() || undefined,
       });
-      onCreated(parent);
+      onCreated(profile);
     } catch {
       setError("Không lưu được, vui lòng thử lại");
       setSaving(false);

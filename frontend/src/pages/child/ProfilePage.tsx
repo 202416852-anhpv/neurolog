@@ -10,7 +10,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createChild, fetchChild, fetchChildren, updateChild } from "@/api/child";
+import { completeChildProfile } from "@/api/auth";
+import { fetchChild, updateChild } from "@/api/child";
+import { getStoredUserName } from "@/lib/auth";
 import type { Child, ChildInput, Gender } from "@/types/child";
 
 const PROFILE_ID_KEY = "neurolog.childId";
@@ -44,21 +46,27 @@ const toFormState = (child: Child): FormState => ({
   healthNotes: child.healthNotes ?? "",
 });
 
-export default function ProfilePage() {
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+interface ProfilePageProps {
+  onProfiled?: (child: Child) => void;
+}
+
+export default function ProfilePage({ onProfiled }: ProfilePageProps) {
+  const [form, setForm] = useState<FormState>(() => ({
+    ...EMPTY_FORM,
+    name: getStoredUserName() ?? "",
+  }));
   const [profileId, setProfileId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [children, setChildren] = useState<Child[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     const storedId = localStorage.getItem(PROFILE_ID_KEY);
 
-    const loadStored = storedId
+    const load = storedId
       ? fetchChild(storedId)
           .then((child) => {
             if (cancelled) return;
@@ -72,18 +80,9 @@ export default function ProfilePage() {
           })
       : Promise.resolve();
 
-    loadStored
-      .then(() => fetchChildren())
-      .then((data) => {
-        if (cancelled) return;
-        setChildren(data);
-      })
-      .catch(() => {
-        if (!cancelled) setError("Không tải được dữ liệu, vui lòng thử lại");
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+    load.finally(() => {
+      if (!cancelled) setLoading(false);
+    });
 
     return () => {
       cancelled = true;
@@ -93,20 +92,6 @@ export default function ProfilePage() {
   const setField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setSaved(false);
-  };
-
-  const pickExisting = async (id: string) => {
-    if (!id) return;
-    setError(null);
-    try {
-      const child = await fetchChild(id);
-      localStorage.setItem(PROFILE_ID_KEY, child._id);
-      setProfileId(child._id);
-      setForm(toFormState(child));
-      setSaved(false);
-    } catch {
-      setError("Không mở được hồ sơ này");
-    }
   };
 
   const buildInput = useCallback((): ChildInput | null => {
@@ -165,11 +150,12 @@ export default function ProfilePage() {
     try {
       const child = profileId
         ? await updateChild(profileId, input)
-        : await createChild(input);
+        : (await completeChildProfile(input)).profile;
       localStorage.setItem(PROFILE_ID_KEY, child._id);
       setProfileId(child._id);
       setForm(toFormState(child));
       setSaved(true);
+      onProfiled?.(child);
     } catch {
       setError("Không lưu được hồ sơ, vui lòng thử lại");
     } finally {
@@ -185,27 +171,6 @@ export default function ProfilePage() {
         <p className="text-muted-foreground text-sm">Đang tải...</p>
       ) : (
         <>
-          {!profileId && children.length > 0 && (
-            <div className="mb-4 grid gap-2">
-              <Label htmlFor="existing-profile">Hoặc chọn hồ sơ có sẵn</Label>
-              <select
-                id="existing-profile"
-                className={SELECT_CLASS}
-                value=""
-                onChange={(e) => pickExisting(e.target.value)}
-              >
-                <option value="" disabled>
-                  Chọn hồ sơ...
-                </option>
-                {children.map((child) => (
-                  <option key={child._id} value={child._id}>
-                    {child.name} ({child.age} tuổi)
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
           {error && <p className="text-destructive mb-4 text-sm">{error}</p>}
           {saved && (
             <p className="mb-4 text-sm text-green-600">
