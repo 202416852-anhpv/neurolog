@@ -140,7 +140,7 @@ export default function ChildrenPage() {
   );
 
   return (
-    <div className="mx-auto max-w-6xl p-6">
+    <div className="mx-auto max-w-6xl px-4 py-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl font-bold">Quản lý trẻ</h1>
         <div className="flex gap-2">
@@ -179,14 +179,26 @@ export default function ChildrenPage() {
           </p>
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div
+          className={
+            summaries.length === 1 ? "grid gap-3" : "grid gap-3 sm:grid-cols-2"
+          }
+        >
           {summaries.map(({ child, totalTasks, doneTasks, journalCount }, i) => (
             <Link
               key={child._id}
               to={`/parent/children/${child._id}`}
-              className="group rounded-xl border bg-card p-4 shadow-xs transition-all hover:border-brand-magenta/40 hover:shadow-md"
+              className={`group rounded-xl border bg-card p-4 shadow-xs transition-all hover:border-brand-magenta/40 hover:shadow-md ${
+                summaries.length === 1
+                  ? "flex flex-wrap items-center justify-between gap-4"
+                  : ""
+              }`}
             >
-              <div className="mb-3 flex items-center gap-3">
+              <div
+                className={`flex items-center gap-3 ${
+                  summaries.length === 1 ? "" : "mb-3"
+                }`}
+              >
                 <span
                   className={`flex size-11 shrink-0 items-center justify-center rounded-full text-base font-bold text-white ${
                     AVATAR_COLORS[i % AVATAR_COLORS.length]
@@ -206,7 +218,11 @@ export default function ChildrenPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex gap-4 text-sm">
+              <div
+                className={`flex text-sm ${
+                  summaries.length === 1 ? "gap-6" : "gap-4"
+                }`}
+              >
                 <span className="flex items-center gap-1.5 text-muted-foreground">
                   <ListChecks className="size-4" />
                   <span className="font-semibold text-foreground">

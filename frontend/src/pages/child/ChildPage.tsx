@@ -79,7 +79,7 @@ export default function ChildPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-6xl p-6">
+      <div className="mx-auto max-w-6xl px-4 py-6">
         <p className="text-muted-foreground text-sm">Đang tải...</p>
       </div>
     );
@@ -87,7 +87,7 @@ export default function ChildPage() {
 
   if (!child) {
     return (
-      <div className="mx-auto max-w-6xl p-6">
+      <div className="mx-auto max-w-6xl px-4 py-6">
         <h1 className="mb-2 text-xl font-bold">Góc của bé</h1>
         {error && <p className="text-destructive mb-4 text-sm">{error}</p>}
         <p className="text-muted-foreground mb-4 text-sm">
@@ -120,7 +120,7 @@ export default function ChildPage() {
   const previewTasks = pending.slice(0, 3);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-6">
+    <div className="mx-auto max-w-6xl space-y-6 px-4 py-6">
       <div className="flex items-center gap-4">
         <div className="flex size-16 items-center justify-center rounded-full bg-brand-magenta text-3xl font-bold text-white">
           {child.name.charAt(0).toUpperCase()}

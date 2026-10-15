@@ -24,7 +24,7 @@ const PARENT_LINKS: NavItem[] = [
   { to: "/parent", label: "Tổng quan", end: true, icon: LayoutDashboard },
   { to: "/parent/tasks", label: "Nhiệm vụ", end: true, icon: ListChecks },
   { to: "/parent/children", label: "Trẻ", icon: Users },
-  { to: "/parent/journal", label: "Nhật ký", end: true, icon: NotebookPen },
+  { to: "/parent/journal", label: "Nhật ký", icon: NotebookPen },
 ];
 
 export default function ParentLayout() {

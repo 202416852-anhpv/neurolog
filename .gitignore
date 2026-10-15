@@ -4,3 +4,4 @@ dist/
 DESIGN.md
 AGENTS.md
 .playwright-mcp/
+*.tsbuildinfo

@@ -164,7 +164,7 @@ export default function ProfilePage({ onProfiled }: ProfilePageProps) {
   };
 
   return (
-    <div className="mx-auto max-w-6xl p-6">
+    <div className="mx-auto max-w-6xl px-4 py-6">
       <h1 className="mb-4 text-xl font-bold">Hồ sơ của bé</h1>
 
       {loading ? (
@@ -173,7 +173,7 @@ export default function ProfilePage({ onProfiled }: ProfilePageProps) {
         <>
           {error && <p className="text-destructive mb-4 text-sm">{error}</p>}
           {saved && (
-            <p className="mb-4 text-sm text-green-600">
+            <p className="mb-4 text-sm text-[#1a7f4f] dark:text-brand-green">
               Đã lưu hồ sơ thành công!
             </p>
           )}
@@ -201,7 +201,7 @@ export default function ProfilePage({ onProfiled }: ProfilePageProps) {
                       aria-label="Sao chép mã hồ sơ"
                     >
                       {copied ? (
-                        <Check className="size-4 text-green-600" />
+                        <Check className="size-4 text-[#1a7f4f] dark:text-brand-green" />
                       ) : (
                         <Copy className="size-4" />
                       )}

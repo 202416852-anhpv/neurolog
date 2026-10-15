@@ -1,5 +1,8 @@
 import mongoose, { type Document, Schema, type Types } from "mongoose";
 
+export const JOURNAL_TAGS = ["poor", "fair", "good", "great"] as const;
+export type JournalTag = (typeof JOURNAL_TAGS)[number];
+
 export interface IJournalEntry extends Document {
   childId: Types.ObjectId;
   date: Date;
@@ -7,6 +10,7 @@ export interface IJournalEntry extends Document {
   behavior: string;
   consequence: string;
   notes: string;
+  tag?: JournalTag;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -19,6 +23,7 @@ const journalSchema = new Schema<IJournalEntry>(
     behavior: { type: String, required: true, trim: true, maxlength: 2000 },
     consequence: { type: String, required: true, trim: true, maxlength: 2000 },
     notes: { type: String, default: "", trim: true, maxlength: 2000 },
+    tag: { type: String, enum: JOURNAL_TAGS },
   },
   { timestamps: true },
 );

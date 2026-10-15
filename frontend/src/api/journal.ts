@@ -1,9 +1,15 @@
 import api from "./client";
-import type { JournalEntry, JournalInput } from "../types/journal";
+import type {
+  JournalEntry,
+  JournalInput,
+  JournalQuery,
+} from "../types/journal";
 
-export const fetchJournals = async (childId?: string): Promise<JournalEntry[]> => {
+export const fetchJournals = async (
+  params: JournalQuery = {},
+): Promise<JournalEntry[]> => {
   const { data } = await api.get<JournalEntry[]>("/journals", {
-    params: childId ? { childId } : undefined,
+    params: Object.keys(params).length > 0 ? params : undefined,
   });
   return data;
 };

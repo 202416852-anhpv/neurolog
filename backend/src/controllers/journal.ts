@@ -2,15 +2,18 @@ import type { Request, Response } from "express";
 import * as journalService from "../services/journal.js";
 import {
   createJournalSchema,
+  journalQuerySchema,
   updateJournalSchema,
 } from "../validations/journal.js";
 import { AppError, ERROR_MESSAGES } from "../errors/index.js";
 import logger from "../logger/index.js";
 
 export const getJournals = async (req: Request, res: Response) => {
-  const childId =
-    typeof req.query.childId === "string" ? req.query.childId : undefined;
-  const entries = await journalService.getJournals(childId);
+  const parsed = journalQuerySchema.safeParse(req.query);
+  if (!parsed.success) {
+    throw new AppError(ERROR_MESSAGES.VALIDATION_FAILED, 400);
+  }
+  const entries = await journalService.getJournals(parsed.data);
   logger.info({ count: entries.length }, "Fetched journal entries");
   res.json(entries);
 };

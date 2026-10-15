@@ -65,7 +65,7 @@ export default function TasksPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-6xl p-6">
+      <div className="mx-auto max-w-6xl px-4 py-6">
         <p className="text-muted-foreground text-sm">Đang tải...</p>
       </div>
     );
@@ -73,7 +73,7 @@ export default function TasksPage() {
 
   if (!child) {
     return (
-      <div className="mx-auto max-w-6xl p-6">
+      <div className="mx-auto max-w-6xl px-4 py-6">
         <h1 className="mb-4 text-xl font-bold">Nhiệm vụ của bé</h1>
         {error && <p className="text-destructive mb-4 text-sm">{error}</p>}
         <p className="text-muted-foreground mb-4 text-sm">
@@ -90,7 +90,7 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl p-6">
+    <div className="mx-auto max-w-6xl px-4 py-6">
       <h1 className="mb-1 text-xl font-bold">Nhiệm vụ của {child.name}</h1>
       <p className="text-muted-foreground mb-4 text-sm">
         Hoàn thành xong nhớ bấm "Hoàn thành" để phụ huynh duyệt nhé!

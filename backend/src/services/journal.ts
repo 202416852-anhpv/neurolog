@@ -2,11 +2,14 @@ import * as journalRepo from "../repos/journal.js";
 import type { IJournalEntry } from "../models/journal.js";
 import type {
   CreateJournalInput,
+  JournalQueryInput,
   UpdateJournalInput,
 } from "../validations/journal.js";
 
-export const getJournals = async (childId?: string): Promise<IJournalEntry[]> => {
-  return journalRepo.findAll(childId);
+export const getJournals = async (
+  query: JournalQueryInput = {},
+): Promise<IJournalEntry[]> => {
+  return journalRepo.findAll(query);
 };
 
 export const createJournal = async (

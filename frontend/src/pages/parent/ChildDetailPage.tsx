@@ -57,7 +57,7 @@ export default function ChildDetailPage() {
   useEffect(() => {
     let cancelled = false;
     if (!id) return;
-    Promise.all([fetchChild(id), fetchTasks(id), fetchJournals(id)])
+    Promise.all([fetchChild(id), fetchTasks(id), fetchJournals({ childId: id })])
       .then(([childData, taskList, journalList]) => {
         if (cancelled) return;
         setChild(childData);
@@ -125,7 +125,7 @@ export default function ChildDetailPage() {
 
   if (!id) {
     return (
-      <div className="mx-auto max-w-6xl p-6">
+      <div className="mx-auto max-w-6xl px-4 py-6">
         <p className="text-destructive mb-4 text-sm">Thiếu mã của trẻ</p>
         <Button variant="outline" asChild>
           <Link to="/parent/children">
@@ -139,7 +139,7 @@ export default function ChildDetailPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-6xl p-6">
+      <div className="mx-auto max-w-6xl px-4 py-6">
         <p className="text-muted-foreground text-sm">Đang tải...</p>
       </div>
     );
@@ -147,7 +147,7 @@ export default function ChildDetailPage() {
 
   if (error || !child) {
     return (
-      <div className="mx-auto max-w-6xl p-6">
+      <div className="mx-auto max-w-6xl px-4 py-6">
         <p className="text-destructive mb-4 text-sm">
           {error ?? "Không tìm thấy trẻ"}
         </p>
@@ -167,7 +167,7 @@ export default function ChildDetailPage() {
   const recentJournals = journals.slice(0, 5);
 
   return (
-    <div className="mx-auto max-w-6xl p-6">
+    <div className="mx-auto max-w-6xl px-4 py-6">
       <Button variant="ghost" asChild className="mb-4">
         <Link to="/parent/children">
           <ArrowLeft className="size-4" />
@@ -261,7 +261,7 @@ export default function ChildDetailPage() {
                 aria-label="Sao chép mã hồ sơ"
               >
                 {copied ? (
-                  <Check className="size-3.5 text-green-600" />
+                  <Check className="size-3.5 text-[#1a7f4f] dark:text-brand-green" />
                 ) : (
                   <ClipboardCopy className="size-3.5" />
                 )}

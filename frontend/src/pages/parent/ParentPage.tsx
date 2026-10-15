@@ -264,7 +264,7 @@ export default function ParentPage() {
   });
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-6">
+    <div className="mx-auto max-w-6xl space-y-6 px-4 py-6">
       {/* Hero header */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-magenta via-brand-coral to-brand-yellow p-6 text-white shadow-lg md:p-8">
         <div className="relative z-10 flex flex-wrap items-end justify-between gap-4">
@@ -546,7 +546,7 @@ export default function ParentPage() {
                     Ghi lại hành vi của bé theo mô hình ABC để theo dõi tâm lý
                   </p>
                   <Button asChild className="mt-4 bg-brand-magenta hover:bg-brand-magenta/90">
-                    <Link to="/parent/journal">Viết nhật ký đầu tiên</Link>
+                    <Link to="/parent/journal/new">Viết nhật ký đầu tiên</Link>
                   </Button>
                 </div>
               ) : (
@@ -614,7 +614,7 @@ export default function ParentPage() {
               asChild
               className="bg-brand-coral text-white hover:bg-brand-coral/90"
             >
-              <Link to="/parent/journal">
+              <Link to="/parent/journal/new">
                 <NotebookPen className="size-4" />
                 Ghi nhật ký hôm nay
               </Link>
