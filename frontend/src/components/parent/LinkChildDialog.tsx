@@ -54,8 +54,7 @@ export default function LinkChildDialog({
         <DialogHeader>
           <DialogTitle>Liên kết trẻ có sẵn</DialogTitle>
           <DialogDescription>
-            Dán mã hồ sơ (ObjectId) của bé — bé xem mã này ở trang Hồ sơ trong
-            Góc của bé.
+            Dán mã hồ sơ của bé — bé xem mã này ở trang Hồ sơ trong Góc của bé.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-2">
@@ -64,7 +63,7 @@ export default function LinkChildDialog({
             id="link-child-id"
             value={childId}
             onChange={(e) => setChildId(e.target.value)}
-            placeholder="665f..."
+            placeholder="Dán mã hồ sơ của bé"
             className="font-mono"
           />
           {error && <p className="text-destructive text-sm">{error}</p>}

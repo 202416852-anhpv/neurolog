@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import {
+  Bot,
   LayoutDashboard,
   ListChecks,
   Loader2,
@@ -25,6 +26,7 @@ const PARENT_LINKS: NavItem[] = [
   { to: "/parent/tasks", label: "Nhiệm vụ", end: true, icon: ListChecks },
   { to: "/parent/children", label: "Trẻ", icon: Users },
   { to: "/parent/journal", label: "Nhật ký", icon: NotebookPen },
+  { to: "/parent/chat", label: "Trợ lý AI", icon: Bot },
 ];
 
 export default function ParentLayout() {
@@ -76,7 +78,7 @@ export default function ParentLayout() {
 
   if (loading) {
     return (
-      <div className="flex min-h-dvh items-center justify-center gap-2 text-muted-foreground">
+      <div className="theme-parent bg-background text-foreground flex min-h-dvh items-center justify-center gap-2 text-muted-foreground">
         <Loader2 className="size-4 animate-spin" />
         Đang tải...
       </div>
@@ -84,11 +86,15 @@ export default function ParentLayout() {
   }
 
   if (!parent) {
-    return <ParentSetupForm onCreated={handleCreated} />;
+    return (
+      <div className="theme-parent bg-background text-foreground min-h-dvh">
+        <ParentSetupForm onCreated={handleCreated} />
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-dvh">
+    <div className="theme-parent bg-background text-foreground min-h-dvh">
       <Navbar
         brandTo="/parent"
         links={PARENT_LINKS}

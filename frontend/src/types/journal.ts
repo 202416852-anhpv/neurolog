@@ -18,7 +18,7 @@ export const JOURNAL_TAG_META: Record<JournalTag, JournalTagMeta> = {
     label: "Tệ",
     emoji: "😞",
     optionClass:
-      "border-brand-coral bg-brand-coral/15 text-[#c24702] dark:text-[#ff9a5e]",
+      "border-brand-coral bg-brand-coral/15 text-[#3d6690] dark:text-[#8fb0d9]",
     dotClass: "bg-brand-coral",
     accentClass: "border-l-brand-coral",
     tintClass: "bg-brand-coral/[0.04]",
@@ -28,7 +28,7 @@ export const JOURNAL_TAG_META: Record<JournalTag, JournalTagMeta> = {
     label: "Bình thường",
     emoji: "😐",
     optionClass:
-      "border-brand-yellow bg-brand-yellow/20 text-[#8a6410] dark:text-brand-yellow",
+      "border-brand-yellow bg-brand-yellow/20 text-[#7a5c2b] dark:text-brand-yellow",
     dotClass: "bg-brand-yellow",
     accentClass: "border-l-brand-yellow",
     tintClass: "bg-brand-yellow/[0.05]",
@@ -38,7 +38,7 @@ export const JOURNAL_TAG_META: Record<JournalTag, JournalTagMeta> = {
     label: "Ổn",
     emoji: "🙂",
     optionClass:
-      "border-brand-mint bg-brand-mint/15 text-[#0e7490] dark:text-brand-mint",
+      "border-brand-mint bg-brand-mint/15 text-[#3a6d84] dark:text-brand-mint",
     dotClass: "bg-brand-mint",
     accentClass: "border-l-brand-mint",
     tintClass: "bg-brand-mint/[0.05]",
@@ -48,7 +48,7 @@ export const JOURNAL_TAG_META: Record<JournalTag, JournalTagMeta> = {
     label: "Tốt",
     emoji: "😄",
     optionClass:
-      "border-brand-green bg-brand-green/15 text-[#1a7f4f] dark:text-brand-green",
+      "border-brand-green bg-brand-green/15 text-brand-green",
     dotClass: "bg-brand-green",
     accentClass: "border-l-brand-green",
     tintClass: "bg-brand-green/[0.05]",

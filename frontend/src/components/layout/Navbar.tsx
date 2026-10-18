@@ -45,7 +45,7 @@ function UserBadge({
           className="size-8 rounded-full"
         />
       ) : (
-        <span className="bg-brand-magenta/15 text-brand-magenta flex size-8 items-center justify-center rounded-full text-sm font-semibold">
+        <span className="bg-brand-green/15 text-brand-green flex size-8 items-center justify-center rounded-full text-sm font-semibold">
           {(user.name || "?").charAt(0).toUpperCase()}
         </span>
       )}

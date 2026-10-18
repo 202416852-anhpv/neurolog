@@ -91,7 +91,7 @@ export default function ChildDetailPage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      setError("Không sao chép được mã, bé hãy sao chép thủ công");
+      setError("Không sao chép được mã, vui lòng sao chép thủ công");
     }
   };
 
@@ -249,7 +249,7 @@ export default function ChildDetailPage() {
             </p>
           )}
           <div className="sm:col-span-2">
-            <span className="text-muted-foreground">Mã hồ sơ (ObjectId): </span>
+            <span className="text-muted-foreground">Mã hồ sơ: </span>
             <span className="mt-1 flex items-center gap-2">
               <code className="overflow-x-auto rounded bg-muted px-2 py-1 text-xs whitespace-nowrap">
                 {child._id}
@@ -261,7 +261,7 @@ export default function ChildDetailPage() {
                 aria-label="Sao chép mã hồ sơ"
               >
                 {copied ? (
-                  <Check className="size-3.5 text-[#1a7f4f] dark:text-brand-green" />
+                  <Check className="size-3.5 text-brand-green" />
                 ) : (
                   <ClipboardCopy className="size-3.5" />
                 )}
@@ -269,7 +269,7 @@ export default function ChildDetailPage() {
               </Button>
               <span className="text-muted-foreground flex items-center gap-1 text-xs">
                 <Link2 className="size-3" />
-                Bé xem mã này ở Góc của bé → Hồ sơ
+                Mã này bé xem ở Góc của bé → Hồ sơ
               </span>
             </span>
           </div>

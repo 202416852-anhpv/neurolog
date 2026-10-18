@@ -14,7 +14,6 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -44,63 +43,131 @@ function formatDuration(seconds: number): string {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-/* ── Audio recorder (UI only) ─────────────────────────────── */
+/* ── Audio recorder ───────────────────────────────────────── */
 
 function AudioRecorderUI() {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [elapsed, setElapsed] = useState(0);
-  const [hasRecording, setHasRecording] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const urlRef = useRef<string | null>(null);
 
   const bars = useMemo(() => Array.from({ length: 32 }, (_, i) => i), []);
 
+  const stopTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  const startTimer = () => {
+    stopTimer();
+    timerRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
+  };
+
   useEffect(() => {
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timerRef.current) clearInterval(timerRef.current);
+      const recorder = recorderRef.current;
+      if (recorder && recorder.state !== "inactive") {
+        recorder.onstop = null;
+        recorder.stop();
+      }
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      if (urlRef.current) URL.revokeObjectURL(urlRef.current);
     };
   }, []);
 
-  const startRecording = () => {
-    setIsRecording(true);
-    setIsPaused(false);
-    setHasRecording(false);
+  const startRecording = async () => {
+    setError(null);
+    if (urlRef.current) {
+      URL.revokeObjectURL(urlRef.current);
+      urlRef.current = null;
+    }
+    setAudioUrl(null);
+    setIsPlaying(false);
     setElapsed(0);
-    intervalRef.current = setInterval(() => {
-      setElapsed((e) => e + 1);
-    }, 1000);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      const recorder = new MediaRecorder(stream);
+      chunksRef.current = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+      recorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, {
+          type: recorder.mimeType || "audio/webm",
+        });
+        const url = URL.createObjectURL(blob);
+        urlRef.current = url;
+        setAudioUrl(url);
+        stream.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+        recorderRef.current = null;
+      };
+      recorderRef.current = recorder;
+      recorder.start();
+      setIsRecording(true);
+      setIsPaused(false);
+      startTimer();
+    } catch {
+      setError(
+        "Không truy cập được micro. Bạn kiểm tra quyền truy cập micro của trình duyệt nhé.",
+      );
+    }
   };
 
   const stopRecording = () => {
+    stopTimer();
     setIsRecording(false);
     setIsPaused(false);
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    if (elapsed > 0) setHasRecording(true);
+    const recorder = recorderRef.current;
+    if (recorder && recorder.state !== "inactive") recorder.stop();
   };
 
   const togglePause = () => {
-    if (isPaused) {
-      setIsPaused(false);
-      intervalRef.current = setInterval(() => {
-        setElapsed((e) => e + 1);
-      }, 1000);
-    } else {
+    const recorder = recorderRef.current;
+    if (!recorder) return;
+    if (recorder.state === "recording") {
+      recorder.pause();
       setIsPaused(true);
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      stopTimer();
+    } else if (recorder.state === "paused") {
+      recorder.resume();
+      setIsPaused(false);
+      startTimer();
     }
   };
 
   const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-    if (!isPlaying) return;
-    const audio = new Audio();
-    audio.play().catch(() => {});
-    setTimeout(() => setIsPlaying(false), elapsed * 1000);
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (isPlaying) {
+      audio.pause();
+      audio.currentTime = 0;
+      setIsPlaying(false);
+    } else {
+      audio.play().catch(() => setError("Không phát lại được bản ghi âm"));
+      setIsPlaying(true);
+    }
   };
 
   const deleteRecording = () => {
-    setHasRecording(false);
+    if (urlRef.current) {
+      URL.revokeObjectURL(urlRef.current);
+      urlRef.current = null;
+    }
+    setAudioUrl(null);
     setElapsed(0);
     setIsPlaying(false);
   };
@@ -110,12 +177,9 @@ function AudioRecorderUI() {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
           <div className="flex size-8 items-center justify-center rounded-full bg-brand-magenta/10">
-            <Mic className="size-4 text-brand-magenta" />
+            <Mic className="size-4 text-brand-green" />
           </div>
           Ghi âm
-          <Badge variant="secondary" className="ml-auto text-[10px]">
-            Tạm thời
-          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-center gap-4 pb-6">
@@ -124,7 +188,7 @@ function AudioRecorderUI() {
           {bars.map((i) => {
             const h = isRecording && !isPaused
               ? 12 + Math.abs(Math.sin(i * 0.7 + elapsed * 0.5)) * 36
-              : hasRecording
+              : audioUrl
                 ? 8 + Math.abs(Math.sin(i * 0.5)) * 28
                 : 4;
             return (
@@ -133,7 +197,7 @@ function AudioRecorderUI() {
                 className={`w-[5px] rounded-full transition-all duration-300 ${
                   isRecording && !isPaused
                     ? "bg-brand-magenta"
-                    : hasRecording
+                    : audioUrl
                       ? "bg-brand-pink"
                       : "bg-muted-foreground/20"
                 }`}
@@ -150,7 +214,7 @@ function AudioRecorderUI() {
 
         {/* Controls */}
         <div className="flex items-center gap-3">
-          {!isRecording && !hasRecording && (
+          {!isRecording && !audioUrl && (
             <Button
               size="lg"
               className="h-14 w-14 rounded-full bg-brand-magenta p-0 text-white shadow-lg shadow-brand-magenta/30 hover:bg-brand-magenta/90"
@@ -180,7 +244,7 @@ function AudioRecorderUI() {
             </>
           )}
 
-          {hasRecording && (
+          {audioUrl && (
             <>
               <Button
                 variant="outline"
@@ -213,7 +277,7 @@ function AudioRecorderUI() {
         </div>
 
         {isRecording && (
-          <div className="flex items-center gap-2 text-sm text-brand-magenta">
+          <div className="flex items-center gap-2 text-sm text-brand-green">
             <span className="relative flex size-2">
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand-magenta/50 opacity-75" />
               <span className="relative inline-flex size-2 rounded-full bg-brand-magenta" />
@@ -221,47 +285,93 @@ function AudioRecorderUI() {
             Đang ghi âm...
           </div>
         )}
-        {hasRecording && !isRecording && (
-          <p className="text-muted-foreground text-xs">
-            Bản ghi tạm thời — sẽ không lưu vào nhật ký
-          </p>
+
+        {error && <p className="text-destructive text-sm">{error}</p>}
+
+        {audioUrl && (
+          <audio
+            ref={audioRef}
+            src={audioUrl}
+            onEnded={() => setIsPlaying(false)}
+            className="hidden"
+          />
         )}
       </CardContent>
     </Card>
   );
 }
 
-/* ── Photo / OCR (UI only) ────────────────────────────────── */
+/* ── Photo / OCR ──────────────────────────────────────────── */
 
 function PhotoCaptureUI() {
   const [photo, setPhoto] = useState<string | null>(null);
   const [ocrText, setOcrText] = useState("");
   const [isOcrLoading, setIsOcrLoading] = useState(false);
+  const [ocrProgress, setOcrProgress] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const captureInputRef = useRef<HTMLInputElement | null>(null);
+  const uploadInputRef = useRef<HTMLInputElement | null>(null);
+  const fileRef = useRef<File | null>(null);
+  const urlRef = useRef<string | null>(null);
 
-  const handleCapture = () => {
-    // Mock: generate a placeholder "photo"
-    setPhoto("mock");
+  useEffect(() => {
+    return () => {
+      if (urlRef.current) URL.revokeObjectURL(urlRef.current);
+    };
+  }, []);
+
+  const handleFile = (file: File | undefined) => {
+    if (!file) return;
+    if (urlRef.current) URL.revokeObjectURL(urlRef.current);
+    const url = URL.createObjectURL(file);
+    urlRef.current = url;
+    fileRef.current = file;
+    setPhoto(url);
     setOcrText("");
+    setOcrProgress(0);
+    setError(null);
   };
 
-  const handleUpload = () => {
-    setPhoto("mock");
-    setOcrText("");
-  };
-
-  const runOcr = () => {
+  const runOcr = async () => {
+    const file = fileRef.current;
+    if (!file) return;
     setIsOcrLoading(true);
-    setTimeout(() => {
-      setOcrText(
-        "Đây là kết quả OCR mẫu.\nBé chơi puzzle 15 phút, sau đó vẽ tranh.\nTâm trạng vui, tập trung tốt.",
+    setOcrProgress(0);
+    setError(null);
+    try {
+      const { createWorker } = await import("tesseract.js");
+      const worker = await createWorker("vie", 1, {
+        logger: (m) => {
+          if (m.status === "recognizing text") {
+            setOcrProgress(Math.round(m.progress * 100));
+          }
+        },
+      });
+      try {
+        const { data } = await worker.recognize(file);
+        setOcrText(data.text.trim());
+      } finally {
+        await worker.terminate();
+      }
+    } catch {
+      setError(
+        "Không nhận diện được chữ từ ảnh. Bạn thử lại với ảnh rõ nét hơn nhé.",
       );
+    } finally {
       setIsOcrLoading(false);
-    }, 2000);
+    }
   };
 
   const clearPhoto = () => {
+    if (urlRef.current) {
+      URL.revokeObjectURL(urlRef.current);
+      urlRef.current = null;
+    }
+    fileRef.current = null;
     setPhoto(null);
     setOcrText("");
+    setOcrProgress(0);
+    setError(null);
   };
 
   return (
@@ -272,9 +382,6 @@ function PhotoCaptureUI() {
             <Camera className="size-4 text-brand-mint" />
           </div>
           Chụp ảnh / OCR
-          <Badge variant="secondary" className="ml-auto text-[10px]">
-            Tạm thời
-          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 pb-6">
@@ -287,26 +394,52 @@ function PhotoCaptureUI() {
               Chụp ảnh hoặc tải lên để nhận diện chữ
             </p>
             <div className="flex gap-3">
-              <Button onClick={handleCapture} className="gap-2">
+              <Button
+                className="gap-2"
+                onClick={() => captureInputRef.current?.click()}
+              >
                 <Camera className="size-4" />
                 Chụp ảnh
               </Button>
-              <Button variant="outline" onClick={handleUpload} className="gap-2">
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => uploadInputRef.current?.click()}
+              >
                 <Upload className="size-4" />
                 Tải ảnh lên
               </Button>
             </div>
+            <input
+              ref={captureInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={(e) => {
+                handleFile(e.target.files?.[0]);
+                e.target.value = "";
+              }}
+            />
+            <input
+              ref={uploadInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                handleFile(e.target.files?.[0]);
+                e.target.value = "";
+              }}
+            />
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {/* Mock photo preview */}
-            <div className="relative overflow-hidden rounded-lg border bg-gradient-to-br from-brand-mint/20 via-brand-pink/20 to-brand-magenta/10">
-              <div className="flex h-44 items-center justify-center">
-                <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                  <Camera className="size-8" />
-                  <p className="text-sm">Ảnh đã chụp (tạm thời)</p>
-                </div>
-              </div>
+            <div className="relative overflow-hidden rounded-lg border">
+              <img
+                src={photo}
+                alt="Ảnh đã chụp"
+                className="h-44 w-full object-cover"
+              />
               <Button
                 variant="ghost"
                 size="icon"
@@ -326,7 +459,9 @@ function PhotoCaptureUI() {
                 className="gap-2"
               >
                 <FileText className="size-4" />
-                {isOcrLoading ? "Đang nhận diện chữ..." : "Nhận diện chữ (OCR)"}
+                {isOcrLoading
+                  ? `Đang nhận diện chữ... ${ocrProgress}%`
+                  : "Nhận diện chữ (OCR)"}
               </Button>
             ) : (
               <div className="rounded-lg border bg-muted/30 p-3">
@@ -348,11 +483,10 @@ function PhotoCaptureUI() {
                 </p>
               </div>
             )}
-            <p className="text-muted-foreground text-xs">
-              Ảnh và kết quả OCR tạm thời — không lưu vào nhật ký
-            </p>
           </div>
         )}
+
+        {error && <p className="text-destructive text-sm">{error}</p>}
       </CardContent>
     </Card>
   );
@@ -575,7 +709,7 @@ export default function JournalWritePage() {
                 className="flex items-center gap-2"
               >
                 <span
-                  className={`flex size-6 items-center justify-center rounded-full bg-gradient-to-br text-xs font-bold text-white ${field.color}`}
+                  className={`flex size-6 items-center justify-center rounded-full bg-gradient-to-br text-xs font-bold text-foreground ${field.color}`}
                 >
                   {field.key}
                 </span>

@@ -5,8 +5,8 @@ import JournalPage from "@/pages/parent/JournalPage";
 import JournalWritePage from "@/pages/parent/JournalWritePage";
 import ChildPage from "@/pages/child/ChildPage";
 import TasksPage from "@/pages/child/TasksPage";
-import ChatPage from "@/pages/child/ChatPage";
 import ProfilePage from "@/pages/child/ProfilePage";
+import ParentChatPage from "@/pages/parent/ChatPage";
 import ChildrenPage from "@/pages/parent/ChildrenPage";
 import ChildDetailPage from "@/pages/parent/ChildDetailPage";
 import ParentTasksPage from "@/pages/parent/ParentTasksPage";
@@ -24,13 +24,13 @@ export default function AppRoutes() {
         <Route path="/parent/tasks" element={<ParentTasksPage />} />
         <Route path="/parent/journal" element={<JournalPage />} />
         <Route path="/parent/journal/new" element={<JournalWritePage />} />
+        <Route path="/parent/chat" element={<ParentChatPage />} />
         <Route path="/parent/children" element={<ChildrenPage />} />
         <Route path="/parent/children/:id" element={<ChildDetailPage />} />
       </Route>
       <Route element={<ChildLayout />}>
         <Route path="/child" element={<ChildPage />} />
         <Route path="/child/tasks" element={<TasksPage />} />
-        <Route path="/child/chat" element={<ChatPage />} />
         <Route path="/child/profile" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />

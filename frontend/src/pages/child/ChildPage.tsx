@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Bot,
   ClipboardCheck,
   Eye,
   Hourglass,
@@ -239,7 +238,7 @@ export default function ChildPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <Button className="h-12 text-base" asChild>
           <Link to="/child/tasks">
             <ListChecks className="size-5" />
@@ -252,16 +251,6 @@ export default function ChildPage() {
             Hồ sơ
           </Link>
         </Button>
-        <Button
-          variant="outline"
-          className="h-12 text-base"
-          asChild
-        >
-          <Link to="/child/chat">
-            <Bot className="size-5" />
-            Trò chuyện AI
-          </Link>
-        </Button>
       </div>
 
       <div className="flex items-center gap-3 rounded-2xl border border-brand-mint/40 bg-brand-mint/10 p-4">
@@ -271,8 +260,7 @@ export default function ChildPage() {
         <div>
           <p className="text-sm font-bold">Mẹo cho bé hôm nay</p>
           <p className="text-muted-foreground text-sm">
-            Học xong nhớ nghỉ ngơi và uống nước đủ nha. Bé cũng có thể trò
-            chuyện với bạn AI khi thấy buồn hoặc vui!
+            Học xong nhớ nghỉ ngơi và uống nước đủ nha!
           </p>
         </div>
       </div>

@@ -4,56 +4,62 @@ import { AppError, ERROR_MESSAGES } from "../errors/index.js";
 import logger from "../logger/index.js";
 
 const GREETINGS = [
-  "Chào bé! Mình là bạn AI của bé nè. Bé muốn trò chuyện gì nào? 😊",
-  "Xin chào bé yêu! Hôm nay bé thấy vui không?",
-  "Hi bé! Mình ở đây rồi, bé cứ chuyện gì cứ kể mình nghe nhé!",
+  "Xin chào! Mình là trợ lý AI của NeuroLog. Bạn đang cần trao đổi điều gì về con yêu?",
+  "Chào bạn! Hôm nay bạn muốn hỏi về hành vi, cảm xúc hay việc học của con?",
+  "Hi! Mình sẵn sàng lắng nghe và gợi ý cho bạn trong việc đồng hành cùng con.",
 ];
 
 const FALLBACKS = [
-  "Bé kể thêm cho mình nghe được không? Mình muốn hiểu bé nhiều hơn!",
-  "Mình nghe rồi đấy! Bé có muốn kể một điều vui nào của hôm nay không?",
-  "Hay quá! Bé làm tốt lắm, cứ tiếp tục chia sẻ với mình nhé!",
-  "Mình ghi nhận rồi nè. Bé có muốn mình kể một câu chuyện thú vị không?",
-  "Bé nói hay lắm! Mỗi ngày một chút, bé sẽ tiến bộ hơn mỗi ngày đó!",
+  "Bạn kể thêm chi tiết được không? Mình muốn hiểu tình huống rõ hơn để gợi ý phù hợp.",
+  "Mình ghi nhận rồi. Bạn có thể mô tả thêm bối cảnh trước và sau khi việc đó xảy ra không?",
+  "Cảm ơn bạn đã chia sẻ. Bạn thử ghi lại sự việc vào Nhật ký để theo dõi theo thời gian nhé.",
+  "Đây là chủ đề nhiều gia đình cũng gặp. Bạn kể cụ thể hơn giúp mình nhé.",
+  "Mình hiểu rồi. Nếu muốn, bạn có thể vào mục Nhật ký để ghi lại theo mô hình ABC nhé.",
 ];
 
 const REPLIES: Array<{ keywords: string[]; reply: string }> = [
   {
     keywords: ["chào", "hello", "xin chào", "chao"],
-    reply: "Chào bé! Rất vui được gặp bé. Hôm nay bé muốn làm gì nào?",
+    reply: "Chào bạn! Rất vui được hỗ trợ. Bạn đang muốn trao đổi về điều gì?",
   },
   {
-    keywords: ["nhiệm vụ", "việc", "bài"],
+    keywords: ["nhiệm vụ", "giao việc", "việc"],
     reply:
-      "Bé vào tab Nhiệm vụ để xem việc cần làm nhé. Hoàn thành xong nhớ bấm Hoàn thành để phụ huynh duyệt nha!",
+      "Bạn vào mục Nhiệm vụ để giao việc cho con nhé. Khi con bấm Hoàn thành, bạn xác nhận để ghi nhận kết quả.",
+  },
+  {
+    keywords: ["nhật ký", "abc", "tâm lý"],
+    reply:
+      "Nhật ký ABC giúp bạn nhìn ra Dẫn xuất — Hành vi — Hậu quả. Ghi đều đặn mỗi ngày sẽ giúp bạn thấy quy luật hành vi của con.",
   },
   {
     keywords: ["học", "toán", "chữ", "sách", "đọc"],
-    reply: "Học hành chăm chỉ là giỏi lắm đó! Bé đang học môn gì thú vị nhất?",
+    reply:
+      "Với việc học, hãy chia nhỏ nhiệm vụ và khen ngợi cụ thể khi con cố gắng. Bạn có thể tạo nhiệm vụ học tập cho con trong mục Nhiệm vụ.",
   },
   {
-    keywords: ["vui", "hạnh phúc", "yêu đời"],
-    reply: "Nghe vậy mình cũng vui lây! Bé chia sẻ thêm điều gì làm bé vui nha!",
+    keywords: ["buồn", "khóc", "giận", "bực", "cáu", "khó chịu"],
+    reply:
+      "Khi con đang xúc động mạnh, bạn hãy giữ bình tĩnh và đồng cảm trước, rồi mới đặt giới hạn. Ghi lại tình huống vào Nhật ký sẽ giúp bạn nhận ra dấu hiệu sớm hơn.",
   },
   {
-    keywords: ["buồn", "khóc", "tệ", "khó chịu", "bực"],
-    reply: "Mình hiểu bé đang buồn rồi. Bé cứ từ từ kể cho mình nghe, mình luôn ở đây bên bé nhé. Bé cũng có thể kể cho phụ huynh hoặc ghi vào nhật ký nữa.",
+    keywords: ["mệt", "căng thẳng", "stress", "mất ngủ", "ngủ"],
+    reply:
+      "Bạn cũng cần được nghỉ ngơi nữa. Với giấc ngủ của con, hãy cố định giờ đi ngủ và hạn chế màn hình trước giờ ngủ 30 phút.",
   },
   {
-    keywords: ["mẹ", "bố", "cha", "phụ huynh"],
-    reply: "Phụ huynh luôn yêu bé nhiều lắm đấy! Bé muốn kể cho mình nghe về gia đình không?",
+    keywords: ["ăn", "uống", "dinh dưỡng", "biếng ăn"],
+    reply:
+      "Về dinh dưỡng, hãy duy trì bữa ăn đều đặn và để con cùng chọn món lành mạnh. Nếu con biếng ăn kéo dài, bạn nên trao đổi thêm với bác sĩ nhi.",
   },
   {
-    keywords: ["pet", "thú cưng", "động vật", "chó", "mèo"],
-    reply: "Thú cưng dễ thương ghê! Bé nuôi pet trong Góc của bé rồi chứ? Chăm pet tốt thì pet sẽ vui lắm đó!",
-  },
-  {
-    keywords: ["ngủ", "giấc ngủ", "mệt"],
-    reply: "Ngủ đủ giấc giúp bé khỏe mạnh và học giỏi hơn đó. Bé nên đi ngủ sớm nha!",
+    keywords: ["mẹ", "bố", "cha", "gia đình"],
+    reply:
+      "Gia đình là điểm tựa của con. Việc thống nhất cách nuôi dạy giữa các thành viên sẽ giúp con ổn định hơn.",
   },
   {
     keywords: ["cảm ơn", "thank"],
-    reply: "Bé khách sáo gì đâu! Lúc nào muốn trò chuyện mình cũng sẵn sàng nha!",
+    reply: "Rất vui được giúp bạn! Lúc nào cần, bạn cứ nhắn nhé.",
   },
 ];
 
@@ -78,7 +84,7 @@ export const chat = async (req: Request, res: Response) => {
     throw new AppError(ERROR_MESSAGES.VALIDATION_FAILED, 400);
   }
   const reply = pickReply(parsed.data.message);
-  logger.info({ childId: parsed.data.childId }, "Mock chat reply sent");
+  logger.info({ childId: parsed.data.childId }, "Chat reply sent");
   res.json({ reply });
 };
 

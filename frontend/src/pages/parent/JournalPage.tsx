@@ -315,7 +315,7 @@ export default function JournalPage() {
                 ).map(({ label, key, color }) => (
                   <div key={key} className="flex gap-3">
                     <span
-                      className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white ${color}`}
+                      className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-foreground ${color}`}
                     >
                       {label}
                     </span>

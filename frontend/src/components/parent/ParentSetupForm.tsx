@@ -62,8 +62,8 @@ export default function ParentSetupForm({ onCreated }: ParentSetupFormProps) {
   return (
     <div className="mx-auto flex min-h-dvh max-w-lg flex-col justify-center p-6">
       <div className="mb-6 text-center">
-        <span className="mx-auto mb-3 flex size-14 items-center justify-center rounded-2xl bg-brand-magenta/15">
-          <HeartHandshake className="size-7 text-brand-magenta" />
+        <span className="mx-auto mb-3 flex size-14 items-center justify-center rounded-2xl bg-brand-green/15">
+          <HeartHandshake className="size-7 text-brand-green" />
         </span>
         <h1 className="text-2xl font-bold">Xin chào phụ huynh!</h1>
         <p className="text-muted-foreground mt-1 text-sm">

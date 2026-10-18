@@ -152,7 +152,7 @@ export default function ChildrenPage() {
             }}
           >
             <Link2 className="size-4" />
-            Dán mã bé
+            Liên kết bé có sẵn
           </Button>
           <Button
             onClick={() => {
@@ -174,7 +174,7 @@ export default function ChildrenPage() {
         <div className="rounded-xl border border-dashed py-12 text-center">
           <p className="font-medium">Chưa liên kết bé nào</p>
           <p className="text-muted-foreground mt-1 text-sm">
-            Bé tạo hồ sơ ở Góc của bé rồi dán mã hồ sơ (ObjectId) vào đây, hoặc
+            Bé tạo hồ sơ ở Góc của bé rồi dán mã hồ sơ vào đây, hoặc
             bấm "Thêm trẻ" để tạo mới
           </p>
         </div>
@@ -207,7 +207,7 @@ export default function ChildrenPage() {
                   {child.name.charAt(0).toUpperCase()}
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate font-semibold group-hover:text-brand-magenta">
+                  <p className="truncate font-semibold group-hover:text-brand-green">
                     {child.name}
                   </p>
                   <p className="text-muted-foreground text-sm">

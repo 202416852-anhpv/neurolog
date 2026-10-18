@@ -149,7 +149,7 @@ function WeeklyChart({ tasks }: { tasks: Task[] }) {
                 )}
               </div>
               <span
-                className={`text-xs ${d.isToday ? "font-bold text-brand-magenta" : "text-muted-foreground"}`}
+                className={`text-xs ${d.isToday ? "font-bold text-brand-green" : "text-muted-foreground"}`}
               >
                 {d.label}
               </span>
@@ -266,7 +266,7 @@ export default function ParentPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-6">
       {/* Hero header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-magenta via-brand-coral to-brand-yellow p-6 text-white shadow-lg md:p-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-magenta via-brand-coral to-brand-green p-6 text-white shadow-lg md:p-8">
         <div className="relative z-10 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="mb-1 flex items-center gap-2 text-sm font-medium text-white/80">
@@ -288,7 +288,7 @@ export default function ParentPage() {
             <Button
               asChild
               size="lg"
-              className="bg-white/95 text-brand-magenta shadow-sm hover:bg-white"
+              className="bg-white/95 text-brand-green shadow-sm hover:bg-white"
             >
               <Link to="/parent/tasks">
                 <ListChecks className="size-4" />
@@ -350,7 +350,7 @@ export default function ParentPage() {
               label="Nhật ký tuần này"
               value={stats.weekJournals}
               tint="bg-brand-magenta/10"
-              iconColor="text-brand-magenta"
+              iconColor="text-brand-green"
             />
           </div>
 
@@ -429,7 +429,7 @@ export default function ParentPage() {
                 <Button
                   asChild
                   variant="ghost"
-                  className="text-muted-foreground mt-auto w-full hover:text-brand-magenta"
+                  className="text-muted-foreground mt-auto w-full hover:text-brand-green"
                 >
                   <Link to="/parent/tasks">
                     Xem tất cả nhiệm vụ
@@ -490,14 +490,14 @@ export default function ParentPage() {
                           {child.name.charAt(0).toUpperCase()}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate font-semibold group-hover:text-brand-magenta">
+                          <p className="truncate font-semibold group-hover:text-brand-green">
                             {child.name}
                           </p>
                           <p className="text-muted-foreground text-xs">
                             {child.age} tuổi · {done}/{total} nhiệm vụ
                           </p>
                         </div>
-                        <span className="text-sm font-extrabold tabular-nums text-brand-magenta">
+                        <span className="text-sm font-extrabold tabular-nums text-brand-green">
                           {pct}%
                         </span>
                       </div>
@@ -583,7 +583,7 @@ export default function ParentPage() {
                         <span className="rounded-full bg-brand-yellow/20 px-2 py-0.5 text-[10px] font-bold text-brand-coral">
                           A
                         </span>
-                        <span className="rounded-full bg-brand-magenta/10 px-2 py-0.5 text-[10px] font-bold text-brand-magenta">
+                        <span className="rounded-full bg-brand-magenta/10 px-2 py-0.5 text-[10px] font-bold text-brand-green">
                           B
                         </span>
                         <span className="rounded-full bg-brand-green/10 px-2 py-0.5 text-[10px] font-bold text-brand-green">
@@ -600,7 +600,7 @@ export default function ParentPage() {
           {/* Motivational footer banner */}
           <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-brand-yellow/40 bg-brand-yellow/10 p-5">
             <div className="flex items-center gap-3">
-              <span className="flex size-10 items-center justify-center rounded-full bg-brand-yellow text-white">
+              <span className="flex size-10 items-center justify-center rounded-full bg-brand-yellow text-foreground">
                 <Star className="size-5 fill-current" />
               </span>
               <div>

@@ -133,7 +133,7 @@ export default function LoginPage() {
               Phụ huynh
             </CardTitle>
             <CardDescription>
-              Giao việc, duyệt, xem nhật ký và báo cáo
+              Giao việc, duyệt, xem nhật ký, báo cáo và trò chuyện với trợ lý AI
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -149,7 +149,7 @@ export default function LoginPage() {
               Trẻ em
             </CardTitle>
             <CardDescription>
-              Làm nhiệm vụ, nuôi pet, chat AI
+              Làm nhiệm vụ, nuôi thú cưng, xem hồ sơ
             </CardDescription>
           </CardHeader>
           <CardContent>
