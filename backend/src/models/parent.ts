@@ -6,6 +6,8 @@ export interface IParent extends Document {
   email: string;
   phone?: string;
   notes?: string;
+  username?: string;
+  passwordHash?: string;
   googleSub?: string;
   children: Types.ObjectId[];
   createdAt: Date;
@@ -19,6 +21,16 @@ const parentSchema = new Schema<IParent>(
     email: { type: String, required: true, trim: true, maxlength: 200 },
     phone: { type: String, trim: true, maxlength: 20, default: "" },
     notes: { type: String, trim: true, maxlength: 500, default: "" },
+    username: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      unique: true,
+      sparse: true,
+      minlength: 3,
+      maxlength: 30,
+    },
+    passwordHash: { type: String, select: false },
     googleSub: { type: String, unique: true, sparse: true },
     children: [{ type: Schema.Types.ObjectId, ref: "Child" }],
   },

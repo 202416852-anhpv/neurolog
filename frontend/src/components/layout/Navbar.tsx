@@ -1,15 +1,16 @@
-import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { LogOut, Menu } from "lucide-react";
+import { Brain, ChevronDown, LogOut } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 export interface NavItem {
@@ -26,107 +27,99 @@ interface NavbarProps {
   onLogout?: () => void;
 }
 
-function UserBadge({
-  user,
-  onLogout,
-  className,
-}: {
-  user: { name: string; picture?: string };
-  onLogout?: () => void;
-  className?: string;
-}) {
-  return (
-    <div className={cn("flex items-center gap-2", className)}>
-      {user.picture ? (
-        <img
-          src={user.picture}
-          alt=""
-          referrerPolicy="no-referrer"
-          className="size-8 rounded-full"
-        />
-      ) : (
-        <span className="bg-brand-green/15 text-brand-green flex size-8 items-center justify-center rounded-full text-sm font-semibold">
-          {(user.name || "?").charAt(0).toUpperCase()}
-        </span>
-      )}
-      <span className="max-w-32 truncate text-sm font-medium">
-        {user.name || "Tài khoản"}
-      </span>
-      {onLogout && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onLogout}
-          aria-label="Đăng xuất"
-        >
-          <LogOut className="size-4" />
-          <span className="hidden sm:inline">Đăng xuất</span>
-        </Button>
-      )}
-    </div>
-  );
-}
-
 export default function Navbar({ brandTo, links, user, onLogout }: NavbarProps) {
-  const [open, setOpen] = useState(false);
-
   return (
-    <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40 w-full border-b backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-6xl items-center gap-1 px-4">
-        <div className="md:hidden">
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Mở menu">
-                <Menu className="size-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left">
-              <SheetHeader>
-                <SheetTitle>Menu</SheetTitle>
-              </SheetHeader>
-              <nav className="flex flex-col gap-1" aria-label="Điều hướng">
-                {links.map((item) => (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    end={item.end}
-                    onClick={() => setOpen(false)}
-                    className={({ isActive }) =>
-                      cn(
-                        "inline-flex items-center gap-3 rounded-md px-4 font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
-                        "h-12 text-base",
-                        isActive && "bg-secondary text-secondary-foreground",
-                      )
-                    }
+    <>
+      <header className="bg-background/90 supports-[backdrop-filter]:bg-background/75 sticky top-0 z-40 w-full border-b border-border/60 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-3 px-4">
+          <Link to={brandTo} className="flex shrink-0 items-center gap-2">
+            <span className="bg-primary text-primary-foreground flex size-9 items-center justify-center rounded-2xl shadow-sm">
+              <Brain className="size-5" />
+            </span>
+            <span className="text-lg font-extrabold tracking-tight">
+              NeuroLog
+            </span>
+          </Link>
+
+          <nav
+            className="ml-4 hidden items-center gap-1 lg:flex"
+            aria-label="Điều hướng"
+          >
+            {links.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) =>
+                  cn(
+                    "inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold transition-colors",
+                    isActive
+                      ? "bg-secondary text-secondary-foreground"
+                      : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
+                  )
+                }
+              >
+                <item.icon className="size-4" />
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+
+          {user && (
+            <div className="ml-auto flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="h-10 gap-2 rounded-full pr-2 pl-1"
+                    aria-label="Mở menu tài khoản"
                   >
-                    <item.icon className="size-4" />
-                    {item.label}
-                  </NavLink>
-                ))}
-                {user && (
-                  <div className="mt-4 border-t pt-4">
-                    <UserBadge
-                      user={user}
-                      onLogout={() => {
-                        setOpen(false);
-                        onLogout?.();
-                      }}
-                    />
-                  </div>
-                )}
-              </nav>
-            </SheetContent>
-          </Sheet>
+                    <Avatar className="size-8 border border-border/60">
+                      {user.picture && (
+                        <AvatarImage
+                          src={user.picture}
+                          alt={user.name}
+                          referrerPolicy="no-referrer"
+                        />
+                      )}
+                      <AvatarFallback>
+                        {(user.name || "?").charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="hidden max-w-32 truncate text-sm font-semibold sm:block">
+                      {user.name || "Tài khoản"}
+                    </span>
+                    <ChevronDown className="text-muted-foreground size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="truncate">
+                    {user.name || "Tài khoản"}
+                  </DropdownMenuLabel>
+                  {onLogout && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={onLogout}
+                      >
+                        <LogOut className="size-4" />
+                        Đăng xuất
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
         </div>
+      </header>
 
-        <Link to={brandTo} className="mr-2 text-lg font-bold">
-          NeuroLog
-        </Link>
-
-        <nav
-          className="hidden items-center gap-1 md:flex"
-          aria-label="Điều hướng"
-        >
+      <nav
+        className="bg-card/95 fixed inset-x-0 bottom-0 z-50 border-t border-border/60 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(15,23,42,0.06)] backdrop-blur-xl lg:hidden"
+        aria-label="Điều hướng di động"
+      >
+        <div className="mx-auto flex w-full max-w-md items-end justify-around px-2 py-2">
           {links.map((item) => (
             <NavLink
               key={item.to}
@@ -134,24 +127,19 @@ export default function Navbar({ brandTo, links, user, onLogout }: NavbarProps) 
               end={item.end}
               className={({ isActive }) =>
                 cn(
-                  "inline-flex items-center gap-2 rounded-md font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
-                  "h-9 px-4 text-sm",
-                  isActive && "bg-secondary text-secondary-foreground",
+                  "flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl px-2 py-1.5 text-[10px] font-semibold transition-colors",
+                  isActive
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-secondary",
                 )
               }
             >
-              <item.icon className="size-4" />
-              {item.label}
+              <item.icon className="size-5" />
+              <span className="max-w-full truncate">{item.label}</span>
             </NavLink>
           ))}
-        </nav>
-
-        {user && (
-          <div className="ml-auto">
-            <UserBadge user={user} onLogout={onLogout} />
-          </div>
-        )}
-      </div>
-    </header>
+        </div>
+      </nav>
+    </>
   );
 }

@@ -8,11 +8,14 @@ import {
   CheckCheck,
   ListChecks,
   Loader2,
+  Mic,
   NotebookPen,
+  ScanLine,
   Sparkles,
   Star,
   Users,
 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -22,6 +25,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetchChildren } from "@/api/child";
 import { approveTask, fetchTasks } from "@/api/task";
 import { fetchJournals } from "@/api/journal";
@@ -75,17 +79,23 @@ interface StatCardProps {
 
 function StatCard({ icon, label, value, tint, iconColor, sub }: StatCardProps) {
   return (
-    <Card className="gap-3 py-5">
-      <CardContent className="flex items-center gap-4 px-5">
+    <Card className="gap-0 py-4 md:gap-3 md:py-5">
+      <CardContent className="flex items-center gap-3 px-4 md:gap-4 md:px-5">
         <div
-          className={`flex size-12 shrink-0 items-center justify-center rounded-2xl ${tint}`}
+          className={`flex size-10 shrink-0 items-center justify-center rounded-xl md:size-12 md:rounded-2xl ${tint}`}
         >
           <div className={iconColor}>{icon}</div>
         </div>
         <div className="min-w-0">
-          <p className="text-2xl font-extrabold tabular-nums">{value}</p>
-          <p className="text-muted-foreground truncate text-sm">{label}</p>
-          {sub && <p className="text-muted-foreground/80 mt-0.5 text-xs">{sub}</p>}
+          <p className="text-xl font-extrabold tabular-nums md:text-2xl">
+            {value}
+          </p>
+          <p className="text-muted-foreground text-xs md:text-sm">{label}</p>
+          {sub && (
+            <p className="text-muted-foreground/80 mt-0.5 text-[10px] leading-tight md:text-xs">
+              {sub}
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -264,9 +274,9 @@ export default function ParentPage() {
   });
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-4 py-6">
+    <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 lg:px-6 lg:py-8">
       {/* Hero header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-magenta via-brand-coral to-brand-green p-6 text-white shadow-lg md:p-8">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#2563EB] via-[#1D4ED8] to-[#004AC6] p-6 text-white shadow-lg md:p-8">
         <div className="relative z-10 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="mb-1 flex items-center gap-2 text-sm font-medium text-white/80">
@@ -288,7 +298,7 @@ export default function ParentPage() {
             <Button
               asChild
               size="lg"
-              className="bg-white/95 text-brand-green shadow-sm hover:bg-white"
+              className="bg-white/95 text-primary shadow-sm hover:bg-white"
             >
               <Link to="/parent/tasks">
                 <ListChecks className="size-4" />
@@ -312,17 +322,26 @@ export default function ParentPage() {
         <div className="pointer-events-none absolute -right-4 -bottom-14 size-32 rounded-full bg-white/10" />
       </div>
 
-      {error && <p className="text-destructive text-sm">{error}</p>}
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 py-20 text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" />
-          Đang tải tổng quan...
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <Skeleton className="h-24" />
+            <Skeleton className="h-24" />
+            <Skeleton className="h-24" />
+            <Skeleton className="h-24" />
+          </div>
+          <Skeleton className="h-64 w-full" />
         </div>
       ) : (
         <>
           {/* Stats */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <StatCard
               icon={<Users className="size-5" />}
               label="Số trẻ"
@@ -352,6 +371,83 @@ export default function ParentPage() {
               tint="bg-brand-magenta/10"
               iconColor="text-brand-green"
             />
+          </div>
+
+          {/* Quick actions */}
+          <div>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-lg font-extrabold">Ghi chép nhanh</h2>
+              <span className="text-primary flex items-center gap-1 text-xs font-semibold">
+                <Sparkles className="size-3.5" />
+                AI Trợ lý
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+              <Link
+                to="/parent/journal/new"
+                className="bg-gradient-to-r from-primary-container to-primary flex items-center gap-3 rounded-2xl p-4 text-white shadow-sm transition hover:opacity-95"
+              >
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/20">
+                  <Mic className="size-5" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-bold">
+                    Ghi âm ABC
+                  </span>
+                  <span className="block text-xs text-white/75">
+                    Giọng nói AI
+                  </span>
+                </span>
+              </Link>
+              <Link
+                to="/parent/journal/new"
+                className="bg-card hover:border-primary/30 flex items-center gap-3 rounded-2xl border p-4 shadow-sm transition"
+              >
+                <span className="bg-secondary-container/60 text-secondary flex size-10 shrink-0 items-center justify-center rounded-xl">
+                  <ScanLine className="size-5" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-bold">
+                    Quét sổ tay
+                  </span>
+                  <span className="text-muted-foreground block text-xs">
+                    Chụp ảnh OCR
+                  </span>
+                </span>
+              </Link>
+              <Link
+                to="/parent/journal/new"
+                className="bg-secondary hover:border-primary/30 flex items-center gap-3 rounded-2xl border-2 border-primary/20 p-4 transition"
+              >
+                <span className="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-xl">
+                  <NotebookPen className="size-5" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-bold">
+                    Ghi chú
+                  </span>
+                  <span className="text-muted-foreground block text-xs">
+                    Quan sát trong ngày
+                  </span>
+                </span>
+              </Link>
+              <Link
+                to="/parent/chat"
+                className="bg-card hover:border-primary/30 flex items-center gap-3 rounded-2xl border p-4 shadow-sm transition"
+              >
+                <span className="bg-brand-yellow/20 text-brand-coral flex size-10 shrink-0 items-center justify-center rounded-xl">
+                  <Sparkles className="size-5" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-bold">
+                    Hỏi AI
+                  </span>
+                  <span className="text-muted-foreground block text-xs">
+                    Tư vấn nhanh
+                  </span>
+                </span>
+              </Link>
+            </div>
           </div>
 
           {/* Chart + Waiting approval */}

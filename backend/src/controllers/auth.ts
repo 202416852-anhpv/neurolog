@@ -1,7 +1,11 @@
 import type { Request, Response } from "express";
 import * as authService from "../services/auth.js";
 import { AppError, ERROR_MESSAGES } from "../errors/index.js";
-import { loginSchema } from "../validations/auth.js";
+import {
+  loginSchema,
+  passwordLoginSchema,
+  registerSchema,
+} from "../validations/auth.js";
 import { createParentSchema } from "../validations/parent.js";
 import { createChildSchema } from "../validations/child.js";
 import logger from "../logger/index.js";
@@ -18,6 +22,32 @@ export const login = async (req: Request, res: Response) => {
   const result = await authService.login(parsed.data.role, parsed.data.credential);
   logger.info({ role: parsed.data.role }, "Google login");
   res.json(result);
+};
+
+export const passwordLogin = async (req: Request, res: Response) => {
+  const parsed = passwordLoginSchema.safeParse(req.body);
+  if (!parsed.success) {
+    throw new AppError(ERROR_MESSAGES.VALIDATION_FAILED, 400);
+  }
+  const result = await authService.loginWithPassword(parsed.data);
+  logger.info(
+    { role: parsed.data.role, username: parsed.data.username },
+    "Password login",
+  );
+  res.json(result);
+};
+
+export const register = async (req: Request, res: Response) => {
+  const parsed = registerSchema.safeParse(req.body);
+  if (!parsed.success) {
+    throw new AppError(ERROR_MESSAGES.VALIDATION_FAILED, 400);
+  }
+  const result = await authService.register(parsed.data);
+  logger.info(
+    { role: parsed.data.role, username: parsed.data.username },
+    "Account registered",
+  );
+  res.status(201).json(result);
 };
 
 export const completeProfile = async (req: Request, res: Response) => {

@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { BookOpenText, Link2, ListChecks, Plus } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import ChildFormDialog from "@/components/children/ChildFormDialog";
 import LinkChildDialog from "@/components/parent/LinkChildDialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { createChild, fetchChildren } from "@/api/child";
 import { fetchTasks } from "@/api/task";
 import { fetchJournals } from "@/api/journal";
@@ -140,7 +142,7 @@ export default function ChildrenPage() {
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
+    <div className="mx-auto max-w-6xl px-4 py-6 lg:px-6 lg:py-8">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl font-bold">Quản lý trẻ</h1>
         <div className="flex gap-2">
@@ -166,12 +168,20 @@ export default function ChildrenPage() {
         </div>
       </div>
 
-      {error && <p className="text-destructive mb-4 text-sm">{error}</p>}
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
       {loading ? (
-        <p className="text-muted-foreground text-sm">Đang tải...</p>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+        </div>
       ) : summaries.length === 0 ? (
-        <div className="rounded-xl border border-dashed py-12 text-center">
+        <div className="rounded-2xl border border-dashed py-12 text-center">
           <p className="font-medium">Chưa liên kết bé nào</p>
           <p className="text-muted-foreground mt-1 text-sm">
             Bé tạo hồ sơ ở Góc của bé rồi dán mã hồ sơ vào đây, hoặc
@@ -179,11 +189,7 @@ export default function ChildrenPage() {
           </p>
         </div>
       ) : (
-        <div
-          className={
-            summaries.length === 1 ? "grid gap-3" : "grid gap-3 sm:grid-cols-2"
-          }
-        >
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {summaries.map(({ child, totalTasks, doneTasks, journalCount }, i) => (
             <Link
               key={child._id}

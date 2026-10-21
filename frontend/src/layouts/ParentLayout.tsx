@@ -104,7 +104,7 @@ export default function ParentLayout() {
         }}
         onLogout={handleLogout}
       />
-      <main>
+      <main className="pb-24 lg:pb-10">
         <Outlet />
       </main>
     </div>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Check, Copy, Save } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,6 +10,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { completeChildProfile } from "@/api/auth";
 import { fetchChild, updateChild } from "@/api/child";
@@ -16,9 +24,6 @@ import { getStoredUserName } from "@/lib/auth";
 import type { Child, ChildInput, Gender } from "@/types/child";
 
 const PROFILE_ID_KEY = "neurolog.childId";
-
-const SELECT_CLASS =
-  "flex h-12 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
 
 const INPUT_CLASS = "h-12 text-base";
 
@@ -164,18 +169,24 @@ export default function ProfilePage({ onProfiled }: ProfilePageProps) {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
+    <div className="mx-auto max-w-4xl px-4 py-6 lg:px-6 lg:py-8">
       <h1 className="mb-4 text-xl font-bold">Hồ sơ của bé</h1>
 
       {loading ? (
         <p className="text-muted-foreground text-sm">Đang tải...</p>
       ) : (
         <>
-          {error && <p className="text-destructive mb-4 text-sm">{error}</p>}
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           {saved && (
-            <p className="mb-4 text-sm text-[#1a7f4f] dark:text-brand-green">
-              Đã lưu hồ sơ thành công!
-            </p>
+            <Alert className="mb-4 border-brand-green/30 bg-brand-green/10">
+              <AlertDescription className="text-brand-green">
+                Đã lưu hồ sơ thành công!
+              </AlertDescription>
+            </Alert>
           )}
 
           <Card>
@@ -237,19 +248,21 @@ export default function ProfilePage({ onProfiled }: ProfilePageProps) {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="profile-gender">Giới tính</Label>
-                  <select
-                    id="profile-gender"
-                    className={SELECT_CLASS}
-                    value={form.gender}
-                    onChange={(e) =>
-                      setField("gender", e.target.value as "" | Gender)
+                  <Select
+                    value={form.gender || undefined}
+                    onValueChange={(value) =>
+                      setField("gender", value as Gender)
                     }
                   >
-                    <option value="">Chưa chọn</option>
-                    <option value="male">Nam</option>
-                    <option value="female">Nữ</option>
-                    <option value="other">Khác</option>
-                  </select>
+                    <SelectTrigger id="profile-gender" className="h-12">
+                      <SelectValue placeholder="Chưa chọn" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Nam</SelectItem>
+                      <SelectItem value="female">Nữ</SelectItem>
+                      <SelectItem value="other">Khác</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="profile-dob">Ngày sinh</Label>

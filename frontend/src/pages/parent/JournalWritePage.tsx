@@ -13,6 +13,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,6 +23,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { fetchChildren } from "@/api/child";
 import { createJournal } from "@/api/journal";
@@ -33,9 +41,6 @@ import {
   JOURNAL_TAGS,
   type JournalTag,
 } from "@/types/journal";
-
-const SELECT_CLASS =
-  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm";
 
 function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -286,7 +291,11 @@ function AudioRecorderUI() {
           </div>
         )}
 
-        {error && <p className="text-destructive text-sm">{error}</p>}
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
         {audioUrl && (
           <audio
@@ -486,7 +495,11 @@ function PhotoCaptureUI() {
           </div>
         )}
 
-        {error && <p className="text-destructive text-sm">{error}</p>}
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
       </CardContent>
     </Card>
   );
@@ -595,7 +608,7 @@ export default function JournalWritePage() {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
+    <div className="mx-auto max-w-6xl px-4 py-6 lg:px-6 lg:py-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Button
@@ -623,14 +636,15 @@ export default function JournalWritePage() {
         </Button>
       </div>
 
-      {/* Audio + Photo side by side */}
-      <div className="mb-6 grid gap-4 sm:grid-cols-2">
-        <AudioRecorderUI />
-        <PhotoCaptureUI />
-      </div>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)] xl:items-start">
+        {/* Audio + Photo */}
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+          <AudioRecorderUI />
+          <PhotoCaptureUI />
+        </div>
 
-      {/* ABC Form */}
-      <Card className="mb-6">
+        {/* ABC Form */}
+        <Card>
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-base">
             <div className="flex size-8 items-center justify-center rounded-full bg-brand-yellow/20">
@@ -643,19 +657,22 @@ export default function JournalWritePage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="j-child">Trẻ</Label>
-              <select
-                id="j-child"
-                className={SELECT_CLASS}
-                value={childId}
-                onChange={(e) => setChildId(e.target.value)}
+              <Select
+                value={childId || undefined}
+                onValueChange={setChildId}
+                disabled={children.length === 0}
               >
-                {children.length === 0 && <option value="">Chưa có trẻ</option>}
-                {children.map((c) => (
-                  <option key={c._id} value={c._id}>
-                    {c.name} ({c.age} tuổi)
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id="j-child">
+                  <SelectValue placeholder="Chưa có trẻ" />
+                </SelectTrigger>
+                <SelectContent>
+                  {children.map((c) => (
+                    <SelectItem key={c._id} value={c._id}>
+                      {c.name} ({c.age} tuổi)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="j-date">Ngày</Label>
@@ -680,23 +697,23 @@ export default function JournalWritePage() {
                 const meta = JOURNAL_TAG_META[value];
                 const selected = tag === value;
                 return (
-                  <button
+                  <Button
                     key={value}
                     type="button"
                     role="radio"
                     aria-checked={selected}
+                    variant="outline"
                     onClick={() => setTag(value)}
                     className={cn(
-                      "flex items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm font-medium transition-colors outline-none",
-                      "focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                      "h-auto justify-center gap-2 px-3 py-2.5 text-sm font-medium",
                       selected
-                        ? meta.optionClass
-                        : "border-input bg-transparent hover:bg-accent/50",
+                        ? cn(meta.optionClass, "border-transparent")
+                        : "bg-card hover:bg-accent/50",
                     )}
                   >
                     <span aria-hidden>{meta.emoji}</span>
                     {meta.label}
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -739,18 +756,23 @@ export default function JournalWritePage() {
             />
           </div>
 
-          {error && <p className="text-destructive text-sm">{error}</p>}
+          {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
           <Button
             onClick={handleSave}
             disabled={saving || loading || children.length === 0}
-            className="h-11 gap-2 text-base"
+            className="h-11 w-full gap-2 text-base sm:w-auto"
           >
             <Save className="size-4" />
             {saving ? "Đang lưu..." : "Lưu nhật ký"}
           </Button>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }

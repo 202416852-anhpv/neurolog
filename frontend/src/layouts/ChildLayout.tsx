@@ -69,7 +69,7 @@ export default function ChildLayout() {
 
   if (loading) {
     return (
-      <div className="flex min-h-dvh items-center justify-center gap-2 text-muted-foreground">
+      <div className="theme-child bg-background text-foreground flex min-h-dvh items-center justify-center gap-2 text-muted-foreground">
         <Loader2 className="size-4 animate-spin" />
         Đang tải...
       </div>
@@ -78,7 +78,7 @@ export default function ChildLayout() {
 
   if (!child) {
     return (
-      <div className="min-h-dvh">
+      <div className="theme-child bg-background text-foreground min-h-dvh">
         <Navbar
           brandTo="/child"
           links={CHILD_LINKS}
@@ -88,7 +88,7 @@ export default function ChildLayout() {
           }}
           onLogout={handleLogout}
         />
-        <main>
+        <main className="pb-24 lg:pb-10">
           <ProfilePage onProfiled={handleProfiled} />
         </main>
       </div>
@@ -96,7 +96,7 @@ export default function ChildLayout() {
   }
 
   return (
-    <div className="min-h-dvh">
+    <div className="theme-child bg-background text-foreground min-h-dvh">
       <Navbar
         brandTo="/child"
         links={CHILD_LINKS}
@@ -106,7 +106,7 @@ export default function ChildLayout() {
         }}
         onLogout={handleLogout}
       />
-      <main>
+      <main className="pb-24 lg:pb-10">
         <Outlet />
       </main>
     </div>

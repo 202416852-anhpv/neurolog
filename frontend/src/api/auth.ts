@@ -26,6 +26,21 @@ export interface CompleteResponse<R> {
   profile: R;
 }
 
+export interface PasswordLoginInput {
+  username: string;
+  password: string;
+  role: AuthRole;
+}
+
+export interface RegisterInput {
+  username: string;
+  password: string;
+  role: AuthRole;
+  name: string;
+  age: number;
+  email?: string;
+}
+
 export const loginWithGoogle = async (
   credential: string,
   role: AuthRole,
@@ -34,6 +49,20 @@ export const loginWithGoogle = async (
     credential,
     role,
   });
+  return data;
+};
+
+export const loginWithPassword = async (
+  input: PasswordLoginInput,
+): Promise<LoginResponse> => {
+  const { data } = await api.post<LoginResponse>("/auth/login", input);
+  return data;
+};
+
+export const registerAccount = async (
+  input: RegisterInput,
+): Promise<LoginResponse> => {
+  const { data } = await api.post<LoginResponse>("/auth/register", input);
   return data;
 };
 

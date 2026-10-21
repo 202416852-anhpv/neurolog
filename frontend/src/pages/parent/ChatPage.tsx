@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Bot, Loader2, Send } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -85,7 +87,7 @@ export default function ParentChatPage() {
   };
 
   return (
-    <div className="flex h-[calc(100dvh-3.5rem)] w-full flex-col gap-4 px-4 py-4 md:px-6">
+    <div className="mx-auto flex h-[calc(100dvh-10rem)] w-full max-w-4xl flex-col gap-4 px-4 py-4 lg:h-[calc(100dvh-6.5rem)] lg:px-6">
       <div className="space-y-1">
         <h1 className="text-2xl font-bold tracking-tight">Trợ lý AI</h1>
         <p className="text-muted-foreground text-sm">
@@ -108,13 +110,20 @@ export default function ParentChatPage() {
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`flex items-end gap-2 ${message.role === "user" ? "justify-end" : "justify-start"}`}
                 >
+                  {message.role === "ai" && (
+                    <Avatar className="size-7 shrink-0">
+                      <AvatarFallback className="bg-secondary-container/60 text-on-secondary-container text-[10px]">
+                        AI
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
                   <div
-                    className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-sm ${
+                    className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${
                       message.role === "user"
-                        ? "bg-brand-green text-white"
-                        : "bg-muted text-foreground"
+                        ? "bg-primary text-primary-foreground rounded-br-md"
+                        : "bg-muted text-foreground rounded-bl-md"
                     }`}
                   >
                     {message.text}
@@ -130,9 +139,9 @@ export default function ParentChatPage() {
                 </div>
               )}
               {error && (
-                <div className="flex justify-center">
-                  <p className="text-destructive text-sm">{error}</p>
-                </div>
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
               )}
               <div ref={bottomRef} />
             </div>

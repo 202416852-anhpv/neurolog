@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Check, ClipboardCopy, Hourglass, Link2, ListChecks, Pencil, Trash2, Unlink, Loader2, ClipboardCheck } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import ChildFormDialog from "@/components/children/ChildFormDialog";
 import ConfirmDeleteDialog from "@/components/children/ConfirmDeleteDialog";
 import {
@@ -125,8 +127,10 @@ export default function ChildDetailPage() {
 
   if (!id) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-6">
-        <p className="text-destructive mb-4 text-sm">Thiếu mã của trẻ</p>
+      <div className="mx-auto max-w-6xl px-4 py-6 lg:px-6 lg:py-8">
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>Thiếu mã của trẻ</AlertDescription>
+        </Alert>
         <Button variant="outline" asChild>
           <Link to="/parent/children">
             <ArrowLeft className="size-4" />
@@ -139,18 +143,24 @@ export default function ChildDetailPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-6">
-        <p className="text-muted-foreground text-sm">Đang tải...</p>
+      <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 lg:px-6 lg:py-8">
+        <Skeleton className="h-10 w-40" />
+        <Skeleton className="h-56 w-full" />
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+        </div>
       </div>
     );
   }
 
   if (error || !child) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-6">
-        <p className="text-destructive mb-4 text-sm">
-          {error ?? "Không tìm thấy trẻ"}
-        </p>
+      <div className="mx-auto max-w-6xl px-4 py-6 lg:px-6 lg:py-8">
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{error ?? "Không tìm thấy trẻ"}</AlertDescription>
+        </Alert>
         <Button variant="outline" asChild>
           <Link to="/parent/children">
             <ArrowLeft className="size-4" />
@@ -167,7 +177,7 @@ export default function ChildDetailPage() {
   const recentJournals = journals.slice(0, 5);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
+    <div className="mx-auto max-w-6xl px-4 py-6 lg:px-6 lg:py-8">
       <Button variant="ghost" asChild className="mb-4">
         <Link to="/parent/children">
           <ArrowLeft className="size-4" />
@@ -250,7 +260,7 @@ export default function ChildDetailPage() {
           )}
           <div className="sm:col-span-2">
             <span className="text-muted-foreground">Mã hồ sơ: </span>
-            <span className="mt-1 flex items-center gap-2">
+            <div className="mt-1 flex flex-wrap items-center gap-2">
               <code className="overflow-x-auto rounded bg-muted px-2 py-1 text-xs whitespace-nowrap">
                 {child._id}
               </code>
@@ -267,42 +277,48 @@ export default function ChildDetailPage() {
                 )}
                 {copied ? "Đã chép" : "Copy"}
               </Button>
-              <span className="text-muted-foreground flex items-center gap-1 text-xs">
-                <Link2 className="size-3" />
+              <span className="text-muted-foreground flex w-full items-center gap-1 text-xs sm:w-auto">
+                <Link2 className="size-3 shrink-0" />
                 Mã này bé xem ở Góc của bé → Hồ sơ
               </span>
-            </span>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <div className="mb-4 grid gap-3 sm:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base font-medium">
-              <ListChecks className="size-5 text-brand-coral" />
+      <div className="mb-4 grid grid-cols-3 gap-2 sm:gap-3">
+        <Card className="gap-0 py-0">
+          <CardHeader className="p-3 pb-0">
+            <CardTitle className="flex items-center gap-1.5 text-xs font-medium sm:text-sm">
+              <ListChecks className="text-brand-coral size-4 shrink-0" />
               Chưa làm
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-2xl font-bold">{pending}</CardContent>
+          <CardContent className="p-3 pt-1 text-2xl font-bold">
+            {pending}
+          </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base font-medium">
-              <Hourglass className="size-5 text-brand-yellow" />
+        <Card className="gap-0 py-0">
+          <CardHeader className="p-3 pb-0">
+            <CardTitle className="flex items-center gap-1.5 text-xs font-medium sm:text-sm">
+              <Hourglass className="text-brand-yellow size-4 shrink-0" />
               Chờ duyệt
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-2xl font-bold">{submitted}</CardContent>
+          <CardContent className="p-3 pt-1 text-2xl font-bold">
+            {submitted}
+          </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base font-medium">
-              <ClipboardCheck className="size-5 text-brand-green" />
+        <Card className="gap-0 py-0">
+          <CardHeader className="p-3 pb-0">
+            <CardTitle className="flex items-center gap-1.5 text-xs font-medium sm:text-sm">
+              <ClipboardCheck className="text-brand-green size-4 shrink-0" />
               Đã xong
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-2xl font-bold">{done}</CardContent>
+          <CardContent className="p-3 pt-1 text-2xl font-bold">
+            {done}
+          </CardContent>
         </Card>
       </div>
 
@@ -320,7 +336,7 @@ export default function ChildDetailPage() {
               {tasks.map((task) => (
                 <div
                   key={task._id}
-                  className="flex items-center gap-3 rounded-md border p-3 text-sm"
+                  className="flex items-center gap-3 rounded-xl border p-3 text-sm"
                 >
                   <span className="flex-1">{task.title}</span>
                   <Badge variant={task.status === "done" ? "default" : "secondary"}>
@@ -345,7 +361,7 @@ export default function ChildDetailPage() {
           ) : (
             <div className="grid gap-3">
               {recentJournals.map((entry) => (
-                <div key={entry._id} className="rounded-md border p-3 text-sm">
+                <div key={entry._id} className="rounded-xl border p-3 text-sm">
                   <p className="mb-2 font-medium">{formatDate(entry.date)}</p>
                   <div className="grid gap-1 text-muted-foreground">
                     <p>

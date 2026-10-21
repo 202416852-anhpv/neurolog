@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { NotebookPen, RotateCcw, Trash2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,6 +11,14 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetchChildren } from "@/api/child";
 import { deleteJournal, fetchJournals } from "@/api/journal";
 import { fetchCurrentParent } from "@/lib/parent";
@@ -23,9 +32,6 @@ import {
   type JournalEntry,
   type JournalTag,
 } from "@/types/journal";
-
-const SELECT_CLASS =
-  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("vi-VN", {
@@ -149,7 +155,7 @@ export default function JournalPage() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
+    <div className="mx-auto max-w-6xl px-4 py-6 lg:px-6 lg:py-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Nhật ký tâm lý</h1>
@@ -170,39 +176,42 @@ export default function JournalPage() {
         <CardContent className="grid gap-4 pt-6 pb-5 sm:grid-cols-2 lg:grid-cols-4">
           <div className="grid gap-2">
             <Label htmlFor="f-child">Trẻ</Label>
-            <select
-              id="f-child"
-              className={SELECT_CLASS}
-              value={filterChildId}
-              onChange={(e) => setFilterChildId(e.target.value)}
-            >
-              <option value="all">Tất cả các trẻ</option>
-              {children.map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+            <Select value={filterChildId} onValueChange={setFilterChildId}>
+              <SelectTrigger id="f-child">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả các trẻ</SelectItem>
+                {children.map((c) => (
+                  <SelectItem key={c._id} value={c._id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="f-tag">Đánh giá</Label>
-            <select
-              id="f-tag"
-              className={SELECT_CLASS}
+            <Select
               value={filterTag}
-              onChange={(e) =>
-                setFilterTag(e.target.value as "all" | JournalTag | "none")
+              onValueChange={(value) =>
+                setFilterTag(value as "all" | JournalTag | "none")
               }
             >
-              <option value="all">Tất cả đánh giá</option>
-              {JOURNAL_TAGS.map((t) => (
-                <option key={t} value={t}>
-                  {JOURNAL_TAG_META[t].emoji} {JOURNAL_TAG_META[t].label}
-                </option>
-              ))}
-              <option value="none">Chưa đánh giá</option>
-            </select>
+              <SelectTrigger id="f-tag">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả đánh giá</SelectItem>
+                {JOURNAL_TAGS.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {JOURNAL_TAG_META[t].emoji} {JOURNAL_TAG_META[t].label}
+                  </SelectItem>
+                ))}
+                <SelectItem value="none">Chưa đánh giá</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-2">
@@ -250,29 +259,38 @@ export default function JournalPage() {
         </p>
       )}
 
-      {error && <p className="text-destructive mb-3 text-sm">{error}</p>}
+      {error && (
+        <Alert variant="destructive" className="mb-3">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
       {/* Entries list */}
       {loading ? (
-        <p className="text-muted-foreground text-sm">Đang tải...</p>
-      ) : visibleEntries.length === 0 ? (
-        <div className="rounded-xl border border-dashed py-12 text-center">
-          <p className="text-muted-foreground text-sm">
-            {hasActiveFilters
-              ? "Không có nhật ký nào khớp bộ lọc"
-              : "Chưa có nhật ký nào"}
-          </p>
-          {!hasActiveFilters && (
-            <Button asChild variant="outline" className="mt-4 gap-2">
-              <Link to="/parent/journal/new">
-                <NotebookPen className="size-4" />
-                Viết nhật ký đầu tiên
-              </Link>
-            </Button>
-          )}
+        <div className="grid gap-3 xl:grid-cols-2">
+          <Skeleton className="h-48" />
+          <Skeleton className="h-48" />
         </div>
+      ) : visibleEntries.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <p className="text-muted-foreground text-sm">
+              {hasActiveFilters
+                ? "Không có nhật ký nào khớp bộ lọc"
+                : "Chưa có nhật ký nào"}
+            </p>
+            {!hasActiveFilters && (
+              <Button asChild variant="outline" className="mt-4 gap-2">
+                <Link to="/parent/journal/new">
+                  <NotebookPen className="size-4" />
+                  Viết nhật ký đầu tiên
+                </Link>
+              </Button>
+            )}
+          </CardContent>
+        </Card>
       ) : (
-        <div className="grid gap-3">
+        <div className="grid gap-3 xl:grid-cols-2">
           {visibleEntries.map((entry) => (
             <Card
               key={entry._id}

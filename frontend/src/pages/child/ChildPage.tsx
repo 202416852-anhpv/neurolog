@@ -8,6 +8,7 @@ import {
   Sparkles,
   UserPlus,
 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +18,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetchChild } from "@/api/child";
 import { fetchTasks } from "@/api/task";
 import type { Child } from "@/types/child";
@@ -78,8 +81,12 @@ export default function ChildPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-6">
-        <p className="text-muted-foreground text-sm">Đang tải...</p>
+      <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 lg:px-6 lg:py-8">
+        <Skeleton className="h-20 w-full" />
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Skeleton className="h-56 lg:col-span-2" />
+          <Skeleton className="h-56" />
+        </div>
       </div>
     );
   }
@@ -88,7 +95,11 @@ export default function ChildPage() {
     return (
       <div className="mx-auto max-w-6xl px-4 py-6">
         <h1 className="mb-2 text-xl font-bold">Góc của bé</h1>
-        {error && <p className="text-destructive mb-4 text-sm">{error}</p>}
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <p className="text-muted-foreground mb-4 text-sm">
           Bé chưa có hồ sơ. Vào "Hồ sơ" để điền thông tin và làm quen với căn
           phòng của mình nhé!
@@ -119,7 +130,7 @@ export default function ChildPage() {
   const previewTasks = pending.slice(0, 3);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-4 py-6">
+    <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 lg:px-6 lg:py-8">
       <div className="flex items-center gap-4">
         <div className="flex size-16 items-center justify-center rounded-full bg-brand-magenta text-3xl font-bold text-white">
           {child.name.charAt(0).toUpperCase()}
@@ -134,7 +145,11 @@ export default function ChildPage() {
         </div>
       </div>
 
-      {error && <p className="text-destructive text-sm">{error}</p>}
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -150,12 +165,11 @@ export default function ChildPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="mb-4 h-3 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-brand-magenta to-brand-coral transition-all duration-500"
-                style={{ width: `${pct}%` }}
-              />
-            </div>
+            <Progress
+              value={pct}
+              className="mb-4 h-3"
+              indicatorClassName="from-brand-magenta to-brand-coral"
+            />
             <div className="grid grid-cols-3 gap-3 text-center">
               <div className="rounded-xl bg-brand-coral/10 p-3">
                 <p className="text-2xl font-bold text-brand-coral">

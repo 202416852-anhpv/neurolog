@@ -5,9 +5,14 @@ import type { IParent } from "../models/parent.js";
 import type { IChild } from "../models/child.js";
 import * as parentRepo from "../repos/parent.js";
 import * as childRepo from "../repos/child.js";
-import type { AuthRole } from "../validations/auth.js";
+import type {
+  AuthRole,
+  PasswordLoginInput,
+  RegisterInput,
+} from "../validations/auth.js";
 import type { CreateParentInput } from "../validations/parent.js";
 import type { CreateChildInput } from "../validations/child.js";
+import { hashPassword, verifyPassword } from "./password.js";
 
 const oauthClient = new OAuth2Client();
 
@@ -21,6 +26,7 @@ interface GoogleProfile {
 export interface TokenClaims {
   sub: string;
   role: AuthRole;
+  provider?: "google" | "local";
   email?: string;
   profileId?: string;
 }
@@ -128,13 +134,19 @@ export const login = async (
     }
     if (parent) {
       return signResult(
-        { sub: google.sub, role, email: google.email, profileId: parent._id.toString() },
+        {
+          sub: google.sub,
+          role,
+          provider: "google",
+          email: google.email,
+          profileId: parent._id.toString(),
+        },
         parent,
         null,
       );
     }
     return signResult(
-      { sub: google.sub, role, email: google.email },
+      { sub: google.sub, role, provider: "google", email: google.email },
       null,
       { name: google.name, email: google.email, picture: google.picture },
     );
@@ -149,15 +161,129 @@ export const login = async (
   }
   if (child) {
     return signResult(
-      { sub: google.sub, role, email: google.email, profileId: child._id.toString() },
+      {
+        sub: google.sub,
+        role,
+        provider: "google",
+        email: google.email,
+        profileId: child._id.toString(),
+      },
       child,
       null,
     );
   }
   return signResult(
-    { sub: google.sub, role, email: google.email },
+    { sub: google.sub, role, provider: "google", email: google.email },
     null,
     { name: google.name, email: google.email, picture: google.picture },
+  );
+};
+
+export const loginWithPassword = async (
+  input: PasswordLoginInput,
+): Promise<LoginResult> => {
+  const { role, username, password } = input;
+  const account =
+    role === "parent"
+      ? await parentRepo.findByUsername(username)
+      : await childRepo.findByUsername(username);
+
+  if (!account?.passwordHash) {
+    throw new AppError(ERROR_MESSAGES.INVALID_CREDENTIAL, 401);
+  }
+
+  const valid = await verifyPassword(password, account.passwordHash);
+  if (!valid) {
+    throw new AppError(ERROR_MESSAGES.INVALID_CREDENTIAL, 401);
+  }
+
+  const profile =
+    role === "parent"
+      ? await parentRepo.findById(account._id.toString())
+      : await childRepo.findById(account._id.toString());
+  if (!profile) {
+    throw new AppError(ERROR_MESSAGES.INVALID_CREDENTIAL, 401);
+  }
+
+  const profileId = profile._id.toString();
+  const baseClaims = {
+    sub: profileId,
+    role,
+    provider: "local" as const,
+    profileId,
+  };
+  const email = profile.email;
+  return signResult(
+    email ? { ...baseClaims, email } : baseClaims,
+    profile,
+    null,
+  );
+};
+
+export const register = async (input: RegisterInput): Promise<LoginResult> => {
+  const username = input.username.toLowerCase();
+  const [parentWithUsername, childWithUsername] = await Promise.all([
+    parentRepo.findByUsername(username),
+    childRepo.findByUsername(username),
+  ]);
+  if (parentWithUsername || childWithUsername) {
+    throw new AppError(ERROR_MESSAGES.USERNAME_TAKEN, 409);
+  }
+
+  const passwordHash = await hashPassword(input.password);
+
+  if (input.role === "parent") {
+    if (!input.email) {
+      throw new AppError(ERROR_MESSAGES.VALIDATION_FAILED, 400);
+    }
+    const existing = await parentRepo.findByEmail(input.email);
+    if (existing) {
+      throw new AppError(ERROR_MESSAGES.EMAIL_IN_USE, 409);
+    }
+    const parent = await parentRepo.createWithPassword(
+      { name: input.name, age: input.age, email: input.email },
+      { username, passwordHash },
+    );
+    const profileId = parent._id.toString();
+    return signResult(
+      {
+        sub: profileId,
+        role: input.role,
+        provider: "local",
+        profileId,
+        email: input.email,
+      },
+      parent,
+      null,
+    );
+  }
+
+  if (input.email) {
+    const existing = await childRepo.findByEmail(input.email);
+    if (existing) {
+      throw new AppError(ERROR_MESSAGES.EMAIL_IN_USE, 409);
+    }
+  }
+
+  const child = await childRepo.createWithPassword(
+    { name: input.name, age: input.age },
+    {
+      username,
+      passwordHash,
+      ...(input.email ? { email: input.email } : {}),
+    },
+  );
+  const profileId = child._id.toString();
+  const baseClaims = {
+    sub: profileId,
+    role: input.role,
+    provider: "local" as const,
+    profileId,
+  };
+  return signResult(
+    input.email ? { ...baseClaims, email: input.email } : baseClaims,
+    child,
+    null,
   );
 };
 
@@ -210,10 +336,15 @@ export const completeChildProfile = async (
 };
 
 export const getMe = async (claims: TokenClaims): Promise<MeResult> => {
+  const isLocal = claims.provider === "local";
   if (claims.role === "parent") {
-    const parent = await parentRepo.findByGoogleSub(claims.sub);
+    const parent = isLocal
+      ? await parentRepo.findById(claims.sub)
+      : await parentRepo.findByGoogleSub(claims.sub);
     return { role: claims.role, profile: parent };
   }
-  const child = await childRepo.findByGoogleSub(claims.sub);
+  const child = isLocal
+    ? await childRepo.findById(claims.sub)
+    : await childRepo.findByGoogleSub(claims.sub);
   return { role: claims.role, profile: child };
 };

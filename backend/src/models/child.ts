@@ -12,6 +12,8 @@ export interface IChild extends Document {
   interests?: string;
   healthNotes?: string;
   email?: string;
+  username?: string;
+  passwordHash?: string;
   googleSub?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -28,6 +30,16 @@ const childSchema = new Schema<IChild>(
     interests: { type: String, trim: true, maxlength: 500, default: "" },
     healthNotes: { type: String, trim: true, maxlength: 500, default: "" },
     email: { type: String, trim: true, maxlength: 200 },
+    username: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      unique: true,
+      sparse: true,
+      minlength: 3,
+      maxlength: 30,
+    },
+    passwordHash: { type: String, select: false },
     googleSub: { type: String, unique: true, sparse: true },
   },
   { timestamps: true },

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Check, UserPlus } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -9,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetchChild } from "@/api/child";
 import { fetchTasks, submitTask } from "@/api/task";
 import type { Child } from "@/types/child";
@@ -65,17 +67,23 @@ export default function TasksPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-6">
-        <p className="text-muted-foreground text-sm">Đang tải...</p>
+      <div className="mx-auto max-w-4xl space-y-3 px-4 py-6 lg:px-6 lg:py-8">
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-36 w-full" />
+        <Skeleton className="h-36 w-full" />
       </div>
     );
   }
 
   if (!child) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-6">
+      <div className="mx-auto max-w-4xl px-4 py-6 lg:px-6 lg:py-8">
         <h1 className="mb-4 text-xl font-bold">Nhiệm vụ của bé</h1>
-        {error && <p className="text-destructive mb-4 text-sm">{error}</p>}
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <p className="text-muted-foreground mb-4 text-sm">
           Bé chưa có hồ sơ. Vào "Hồ sơ" để điền thông tin trước đã nhé!
         </p>
@@ -90,20 +98,24 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
+    <div className="mx-auto max-w-4xl px-4 py-6 lg:px-6 lg:py-8">
       <h1 className="mb-1 text-xl font-bold">Nhiệm vụ của {child.name}</h1>
       <p className="text-muted-foreground mb-4 text-sm">
         Hoàn thành xong nhớ bấm "Hoàn thành" để phụ huynh duyệt nhé!
       </p>
 
-      {error && <p className="text-destructive mb-4 text-sm">{error}</p>}
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
       {tasks.length === 0 ? (
         <p className="text-muted-foreground text-center text-sm">
           Tuyệt vời, bé đã xong hết việc!
         </p>
       ) : (
-        <div className="grid gap-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           {tasks.map((task) => (
             <Card key={task._id}>
               <CardHeader>

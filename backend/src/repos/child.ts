@@ -32,6 +32,27 @@ export const findByEmail = async (email: string): Promise<IChild | null> => {
   return Child.findOne({ email });
 };
 
+export const findByUsername = async (
+  username: string,
+): Promise<IChild | null> => {
+  return Child.findOne({ username: username.toLowerCase() }).select(
+    "+passwordHash",
+  );
+};
+
+export const createWithPassword = async (
+  data: CreateChildInput,
+  auth: { username: string; passwordHash: string; email?: string },
+): Promise<IChild> => {
+  const payload: Record<string, unknown> = {
+    ...stripUndefined(data),
+    username: auth.username,
+    passwordHash: auth.passwordHash,
+  };
+  if (auth.email) payload.email = auth.email;
+  return Child.create(payload);
+};
+
 export const attachGoogleSub = async (
   id: string,
   sub: string,

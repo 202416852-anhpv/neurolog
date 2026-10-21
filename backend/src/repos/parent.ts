@@ -16,6 +16,29 @@ export const findByEmail = async (email: string): Promise<IParent | null> => {
   return Parent.findOne({ email });
 };
 
+export const findByUsername = async (
+  username: string,
+): Promise<IParent | null> => {
+  return Parent.findOne({ username: username.toLowerCase() }).select(
+    "+passwordHash",
+  );
+};
+
+export const createWithPassword = async (
+  data: CreateParentInput,
+  auth: { username: string; passwordHash: string },
+): Promise<IParent> => {
+  return Parent.create({
+    name: data.name,
+    age: data.age,
+    email: data.email,
+    phone: data.phone ?? "",
+    notes: data.notes ?? "",
+    username: auth.username,
+    passwordHash: auth.passwordHash,
+  });
+};
+
 export const attachGoogleSub = async (
   id: string,
   sub: string,
