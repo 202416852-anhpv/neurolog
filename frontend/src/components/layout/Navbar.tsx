@@ -1,5 +1,5 @@
 import { Link, NavLink } from "react-router-dom";
-import { Brain, ChevronDown, LogOut } from "lucide-react";
+import { ChevronDown, LogOut } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -32,13 +32,16 @@ export default function Navbar({ brandTo, links, user, onLogout }: NavbarProps) 
     <>
       <header className="bg-background/90 supports-[backdrop-filter]:bg-background/75 sticky top-0 z-40 w-full border-b border-border/60 backdrop-blur-xl">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-3 px-4">
-          <Link to={brandTo} className="flex shrink-0 items-center gap-2">
-            <span className="bg-primary text-primary-foreground flex size-9 items-center justify-center rounded-2xl shadow-sm">
-              <Brain className="size-5" />
-            </span>
-            <span className="text-lg font-extrabold tracking-tight">
-              NeuroLog
-            </span>
+          <Link
+            to={brandTo}
+            className="flex shrink-0 items-center"
+            aria-label="NeuroLog"
+          >
+            <img
+              src="/logo-nav.png"
+              alt="NeuroLog"
+              className="h-9 w-auto mix-blend-multiply"
+            />
           </Link>
 
           <nav

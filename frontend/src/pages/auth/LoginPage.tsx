@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
-  Brain,
   CalendarDays,
   Eye,
   EyeOff,
@@ -247,19 +246,11 @@ export default function LoginPage() {
           <BrandPanel />
           <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col lg:min-h-0 lg:max-w-lg lg:justify-center">
           <header className="flex items-center justify-between lg:hidden">
-            <div className="flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground flex size-10 items-center justify-center rounded-2xl shadow-sm">
-                <Brain className="size-5" />
-              </span>
-              <div>
-                <p className="text-lg leading-tight font-extrabold tracking-tight">
-                  NeuroLog
-                </p>
-                <p className="text-muted-foreground text-[11px]">
-                  Chăm sóc thần kinh gia đình
-                </p>
-              </div>
-            </div>
+            <img
+              src="/logo-wordmark.png"
+              alt="NeuroLog — Bộ Nhật ký tâm lý đồng hành cùng con lớn khôn"
+              className="h-12 w-auto mix-blend-multiply"
+            />
             <span className="bg-card text-muted-foreground flex size-10 items-center justify-center rounded-full border shadow-sm">
               <ShieldCheck className="size-5 text-primary" />
             </span>
@@ -293,6 +284,14 @@ export default function LoginPage() {
                 </span>
               </div>
             </div>
+          </div>
+
+          <div className="border-border/60 mb-6 hidden overflow-hidden rounded-3xl border bg-white shadow-sm lg:block">
+            <img
+              src="/logo.png"
+              alt="NeuroLog — Bộ Nhật ký tâm lý đồng hành cùng con lớn khôn"
+              className="w-full"
+            />
           </div>
 
           <div className="mb-5 text-center">
@@ -397,10 +396,11 @@ export default function LoginPage() {
             <ArrowLeft className="size-5" />
           </Button>
           <div className="text-center lg:hidden">
-            <div className="flex items-center justify-center gap-1.5">
-              <Brain className="text-primary size-5" />
-              <span className="font-extrabold tracking-tight">NeuroLog</span>
-            </div>
+            <img
+              src="/logo-nav.png"
+              alt="NeuroLog"
+              className="mx-auto h-6 w-auto mix-blend-multiply"
+            />
             <p className="text-muted-foreground text-[11px] font-medium">
               {isChild ? "Góc của Bé" : "Phụ Huynh"}
             </p>
@@ -673,16 +673,12 @@ function BrandPanel() {
       <div className="pointer-events-none absolute -bottom-20 -left-16 size-64 rounded-full bg-white/10" />
 
       <div className="relative">
-        <div className="flex items-center gap-3">
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-white/15">
-            <Brain className="size-6" />
-          </span>
-          <div>
-            <p className="text-xl font-extrabold tracking-tight">NeuroLog</p>
-            <p className="text-xs text-white/70">
-              Chăm sóc thần kinh gia đình
-            </p>
-          </div>
+        <div className="inline-flex rounded-2xl bg-white px-4 py-3 shadow-sm">
+          <img
+            src="/logo-wordmark.png"
+            alt="NeuroLog — Bộ Nhật ký tâm lý đồng hành cùng con lớn khôn"
+            className="h-11 w-auto"
+          />
         </div>
 
         <Badge className="mt-10 border-white/20 bg-white/15 text-white">
