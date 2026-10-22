@@ -1,11 +1,25 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Check, ClipboardCopy, Hourglass, Link2, ListChecks, Pencil, Trash2, Unlink, Loader2, ClipboardCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  ClipboardCheck,
+  ClipboardCopy,
+  Download,
+  Hourglass,
+  Link2,
+  ListChecks,
+  Loader2,
+  Pencil,
+  Trash2,
+  Unlink,
+} from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardHeader,
   CardTitle,
@@ -13,6 +27,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import ChildFormDialog from "@/components/children/ChildFormDialog";
 import ConfirmDeleteDialog from "@/components/children/ConfirmDeleteDialog";
+import ExportJournalDialog from "@/components/parent/ExportJournalDialog";
 import {
   deleteChild,
   fetchChild,
@@ -55,6 +70,7 @@ export default function ChildDetailPage() {
   const [deletingBusy, setDeletingBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [unlinking, setUnlinking] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -352,6 +368,23 @@ export default function ChildDetailPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Nhật ký tâm lý gần đây</CardTitle>
+          <CardAction>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={() => setExportOpen(true)}
+              disabled={journals.length === 0}
+              title={
+                journals.length === 0
+                  ? "Chưa có nhật ký để xuất"
+                  : `Xuất báo cáo PDF của ${child.name}`
+              }
+            >
+              <Download className="size-4" />
+              Xuất PDF
+            </Button>
+          </CardAction>
         </CardHeader>
         <CardContent>
           {recentJournals.length === 0 ? (
@@ -391,6 +424,13 @@ export default function ChildDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      <ExportJournalDialog
+        open={exportOpen}
+        onOpenChange={setExportOpen}
+        child={child}
+        entries={journals}
+      />
 
       <ChildFormDialog
         key={formKey}
